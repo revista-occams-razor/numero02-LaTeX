@@ -1,0 +1,174 @@
+% Este fichero es parte del Número 2 de la Revista Occam's Razor
+% Revista Occam's Razor Número 2
+%
+% (c) 2007, Occam's Razor. Contenido disponible bajo licencia 
+% Reconocimiento-No comercial-Compartir bajo la misma licencia 2.5 España 
+% de Creative Commons. 
+%
+% Para ver una copia de esta licencia, visite 
+% http://creativecommons.org/licenses/by-nc-sa/2.5/es/ o envie una
+% carta a Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+% 
+
+% Seccion Ratas de Biblioteca
+%
+% Incluye imagen del artículo
+
+
+\rput(1,-2.3){\resizebox{!}{5cm}{{\epsfbox{images/headphones3d.onda.eps}}}}
+
+% -------------------------------------------------
+% Cabecera
+\begin{flushright}
+\msection{introcolor}{black}{0.25}{RATAS DE BIBLIOTECA}
+
+\mtitle{7cm}{Pon un poco de música en tu vida}
+
+\msubtitle{11cm}{Como reproducir ficheros MPEG en unas pocas líneas}
+
+{\sf por Er aplastao}
+
+{\psset{linecolor=black,linestyle=dotted}\psline(-12,0)}
+\end{flushright}
+
+\vspace{2mm}
+% -------------------------------------------------
+
+\begin{multicols}{2}
+
+
+% Introducción
+\colorbox{introcolor}{
+\begin{minipage}{.9\linewidth}
+{{\resizebox{!}{1.0cm}{H}}{ace algunos años existió una empresa llamada Loki que desarrollaba
+versiones de juegos para Linux. La empresa finalmente desapareció, pero nos
+dejó algunas de las librerías que utilizaron en estos ports. Una de
+ellas, llamada SMPEG, nos permite reproducir ficheros MPG de forma muy
+sencilla. 
+}}
+
+\end{minipage}
+}
+
+\vspace{2mm}
+
+% Cuerpo del artículo
+
+Aunque es mucho más divertido programar tu propio decodificador de
+MPEG, muchas veces no se dispone de tiempo o de
+ganas. Afortunadamente, siempre hay alguien que ha echo el trabajo
+anteriormente. Si no, date prisa y quizás te hagas rico :).
+
+
+En esta ocasión vamos a utilizar la librería SMPEG desarrollada por
+la compañía Loki, para escribir un rudimentario reproductor de MP3 en
+unas pocas líneas.
+
+
+
+\sectiontext{white}{black}{AL GRANO}
+
+Como solemos hacer en esta sección no le vamos a dar vueltas al
+tema. Aquí tenéis el código del reproductor.
+
+\lstset{language=C,frame=tb,framesep=5pt,basicstyle=\small}   
+\begin{lstlisting}
+#include <stdio.h>
+#include <SDL.h>
+#include <smpeg/smpeg.h>
+
+int
+main (int argc, char *argv[])
+{
+ SMPEG   *mpeg;
+ SMPEG_Info info;
+
+ mpeg = SMPEG_new (argv[1], &info, 1);
+ SMPEG_enableaudio (mpeg, 1);
+ SMPEG_setvolume (mpeg, 90);
+ SMPEG_play (mpeg);
+ while 
+   (SMPEG_status(mpeg) == SMPEG_PLAYING) 
+   {
+    SMPEG_getinfo (mpeg, &info);
+    printf ("Time %lf/%lf\n", 
+             info.current_time, 
+             info.total_time);
+    SDL_Delay (10);
+   }
+ SMPEG_delete (mpeg);
+}
+
+\end{lstlisting}
+
+Sencillo no?... Abrir, configurar, tocar y esperar :).  Bueno, el
+programa toma su primer argumento de la línea de comandos y lo utiliza 
+para crear un objeto SMPEG que será el encargado de la
+reproducción. Luego, simplemente ponemos el volumen y le decimos que
+empiece a tocar.
+
+A continuación nos quedamos esperando en un bucle que terminará cuando
+la librería haya reproducido el fichero completo. La función
+SMPEG\_status retornará SMPEG\_STOP.
+
+A modo de ejemplo, hacemos una llamada a la función SMPEG\_getinfo,
+dentro del bucle, para mostrar en pantalla un mensaje de progreso en
+la reproducción, que actualizamos cada 10 milisegundos. El retardo
+dentro del bucle es importante para que la carga del sistema no sea de
+1.
+
+
+\sectiontext{white}{black}{SDL}
+
+La librería SMPEG se diseñó para ser usada junto a otra librería que
+se suele utilizar para el desarrollo de juegos: SDL (Simple
+Directmedia Layer). De hecho, ``SMPEG significa SDL MPEG Player Library''
+
+En nuestro ejemplo, estamos utilizando (aunque no lo parezca) esta
+librería para la reproducción del sonido. El tercer parámetro ('1') en la
+llamada SMPEG\_new es el encargado de ello. Por esta razón, para que el
+programa funcione, es necesario linkarlo con esta librería. Esto se
+consigue con el siguiente comando:
+
+{\small
+\begin{verbatim}
+occam@razor $ gcc -o smpeg-test smpeg-test.c \
+`sdl-config --cflags` \
+-lsmpeg `sdl-config --libs`
+\end{verbatim}
+}%$
+
+
+Del resto ya se encarga SMPEG :). 
+
+
+
+\sectiontext{white}{black}{VIDEO}
+
+Finalmente, comentaros que SMPEG es capaz de decodificar videos en
+formato MPEG-1. No vamos a incluir un ejemplo de como se haría. Eso lo
+dejamos para que os entretengais un poquillo y jugueis tanto con SDL
+como con SMPEG.
+
+\begin{entradilla}
+{\em ``SMPEG fué diseñada \color{introcolor}{para trabajar con SDL}''}
+\end{entradilla}
+
+Pero no nos vamos a ir sin incluir algunas pistas. En primer lugar,
+tenéis que encontrar la forma de crear una aplicación SDL con su
+ventana. En el sitio oficial de SDL hay un buen tutorial para empezar.
+
+Una vez que tengáis vuestra flamante ventana en pantalla, es el
+momento de ojear smpeg.h. Veréis que SMPEG os proporciona funciones
+para trabajar directamente sobre estructuras SDL\_Surface, con las que
+podréis pintar directamente sobre la ventana. También podéis utilizar
+OpenGL, pero ya no es tan directo.
+
+Hasta el proximo número.
+
+\raggedcolumns
+\pagebreak
+
+\end{multicols}
+
+\pagebreak

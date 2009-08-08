@@ -1,0 +1,665 @@
+% Este fichero es parte del Número 2 de la Revista Occam's Razor
+% Revista Occam's Razor Número 2
+%
+% (c) 2007, Pablo Palazón, Julio I. Sorribes, Occam's Razor
+% Contenido disponible bajo licencia 
+% Reconocimiento-No comercial-Compartir bajo la misma licencia 2.5 España 
+% de Creative Commons. 
+%
+% Para ver una copia de esta licencia, visite 
+% http://creativecommons.org/licenses/by-nc-sa/2.5/es/ o envie una
+% carta a Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+% 
+
+% Seccion En la Práctica
+%
+% Incluye imagen del artículo
+
+
+\rput(1,-2.3){\resizebox{!}{8cm}{{\epsfbox{images/door.eps}}}}
+
+% -------------------------------------------------
+% Cabecera
+\begin{flushright}
+\msection{introcolor}{black}{0.25}{EN LA PRÁCTICA}
+
+\mtitle{7cm}{Conectando GNU/Linux y Windows}
+
+\msubtitle{12cm}{Cliente GNU/Linux en un Dominio Windows Active Directory 2003}
+
+{\sf por Pablo Palazón ({\tt pablo.palazon@gmail.com})\\Julio I. Sorribes ({\tt julioi.sorribes@uclm.es})}
+
+{\psset{linecolor=black,linestyle=dotted}\psline(-12,0)}
+\end{flushright}
+
+\vspace{2mm}
+% -------------------------------------------------
+
+\begin{multicols}{2}
+
+\intro{introcolor}{I}{maginaros la siguiente situación: Estamos en una empresa mediana o grande
+donde la mayoría de las máquinas usan Windows. Para facilitar las tareas
+de trabajo en equipo han creado un dominio gestionado mediante Directorio Activo (o Active Directory).
+}
+
+Para los administradores de un dominio Windows, es una tarea trivial
+añadir su maquina a éste, pero la cosa se complica para las máquinas
+con sistema operativo GNU/Linux. Además, la estructura del dominio es
+muy compleja y la política de añadir máquinas es muy estricta, y
+necesita más datos de los realmente necesarios (lugar de la máquina,
+número de identificación, propietario, etc). Por tanto, solo se añaden
+máquinas desde un interfaz Windows.  
+
+Antes de comenzar debemos establecer unos preliminares:
+
+\begin{enumerate}
+\item  Si en un mismo ordenador tenemos instalados dos Sistemas
+  Operativos (Windows y GNU/Linux) habrá que crear, en el Directorio
+  Activo (en adelante DA), una cuenta de máquina para cada uno de los
+  Sistemas Operativos, con dos nombres net-bios diferentes y
+  configurar el nombre del equipo con dichos nombres, uno para cada
+  uno de los Sistemas Operativos. Es decir, si tenemos instalado
+  Windows y unido el ordenador al dominio con un nombre net-bios,
+  debemos crear otra cuenta de máquina para GNU/Linux en el Directorio
+  Activo con un nombre net-bios diferente. 
+
+\item La configuración es para Debian, modificad los comandos a
+  vuestros respectivos sistemas.
+\end{enumerate}
+
+\columnbreak
+
+\sectiontext{white}{black}{INSTALACIÓN DE SAMBA, MITKerberos Y WINBIND}
+
+Samba ofrece un conjunto de herramientas que proporcionan conectividad
+con los protocolos SMB/CIFS usados por las maquinas Microsoft Windows
+en la redes locales. Permite conectarse a unidades compartidas tanto
+de Windows como de Samba (GNU/Linux). 
+
+Kerberos es un protocolo de autenticación en red necesario para la
+identificación y autenticación de usuarios ante Active Directory. 
+
+Winbind realiza la asociación de UID's y GID's GNU/Linux con SID's de
+Windows. Es imprescindible para iniciar sesión como usuarios en la
+máquina GNU/Linux pero validando el nombre y su contraseña en la base de
+datos de usuarios del Directorio Activo, ya que transforma los
+identificadores de Active Directory en los propios de los sistema
+Unix, de manera que, identificando los usuarios frente al D.A. de
+Windows, el S.O. GNU/Linux les permite el inicio de sesión como usuarios
+``normales'' con los privilegios que el sistema otorga por defecto. 
+
+Para instalarlos, se pueden usar  estos comandos:
+
+\begin{mexample}
+{\small\tt
+apt-get install samba, krb5-user, winbind, smbclient
+}
+\end{mexample}
+
+
+
+\sectiontext{white}{black}{CONFIGURACIÓN DE FICHEROS}
+
+Comenzaremos la configuración con el fichero {\tt /etc/hosts}
+
+\begin{mexample}
+{\scriptsize
+\begin{verbatim}
+127.0.0.1  nombre-netbios.dominio.es  localhost  nombre-netbios
+\end{verbatim}
+}
+\end{mexample}
+
+Realmente esto solo sirve para nuestro ordenador, pero si intentamos
+acceder a nuestra máquina mediante nombre, nos ahorramos el acceso al
+DNS. Añadimos esta entrada en cualquier parte del fichero.
+
+
+
+\end{multicols}
+
+\vspace{2mm}
+
+% Cuadro fuera del entorno multicols
+\begin{center}
+\colorbox{introcolor}{
+\begin{minipage}{0.95\linewidth}
+{\normalsize\sf
+
+{\centering{\color{white}{\large\textbf{{DOMINIOS Y DIRECTORIO ACTIVO}}}}}
+\vspace{0.8mm}
+\hrule
+
+\bigskip
+
+Sin que pretendamos ahora profundizar en los pormenores del concepto
+de ``dominio'' ni en la sigularidad del Directorio Activo, sí
+consideramos conveniente -para facilitar el entendimiento a los más 
+profanos en la materia- explicar con un pequeño ejemplo qué es eso del
+``dominio'' y qué es eso del ``Directorio Activo''. 
+
+
+\medskip
+
+Para que os hagáis una idea rápida, el dominio es el grupo de elementos (ordenadores, impresoras, usuarios, grupos de usuarios, etc) que conforman nuestra estructura organizativa, y el Directorio Activo es la guía o índice (o base de datos) en la que almacenamos todos los datos -valga la redundancia- relativos a los elementos del dominio: el dominio sería nuestra ``ciudad'', y el Directorio Activo sería el ``callejero'' -aunque con más funcionalidades además de la localización de las calles-. Espero que este ejemplo os aclare un poco la diferencia entre dominio y Directorio Activo.
+}
+\end{minipage}
+}
+\end{center}
+\clearpage
+\pagebreak
+
+\bOpage{introcolor}{0.25}{EN LA PRÁCTICA}
+
+
+Seguimos con la configuración del fichero {\tt /etc/nsswitch.conf.}
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+passwd:       compat winbind
+group:        compat
+shadow:       compat
+\end{verbatim}
+}
+\end{mexample}
+
+
+Cuando un usuario hace {\em login} en el sistema, se deben comprobar
+las contraseñas en los lugares que indica el campo {\tt passwd}. Se
+utiliza el parámetro {\tt compat} -algunos sistemas utilizan el término {\tt files} en
+lugar de {\tt compat}, pero ambas deben funcionar- para comprobar
+usuarios locales, y {\tt winbind} para comprobar los usuarios del
+dominio. Es importante que el sistema no compruebe o coteje la
+existencia del grupo del usuario que inicia sesión en los grupos
+existentes en el Directorio Activo porque ralentiza el arranque del
+sistema (si el dominio es muy grande). En definitiva, el parámetro
+{\tt winbind} sólo debe estar en la línea {\tt passwd:} del fichero. 
+
+
+\begin{entradilla}
+{\em{\color{introcolor}{La configuración de Samba}} es fundamental
+  para el proceso de validación en un dominio.}
+\end{entradilla}
+
+
+Una de la partes más importantes de la configuración del cliente
+GNU/Linux para su validación en un dominio gestionado a través de
+Directorio Activo es la configuración de Samba. Para ello debemos
+modificar el fichero {\tt /etc/samba/smb.conf.}
+
+Antes de esa modificación, es conveniente parar los demonios de samba y winbind ejecutando como root:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+/etc/init.d/winbind stop
+/etc/init.d/samba stop
+\end{verbatim}
+}
+\end{mexample}
+
+
+En el fichero {\tt /etc/samba/smb.conf}, las partes que indicamos son
+las necesarias para Winbind, lo demás lo podéis dejar como está, o
+modificarlo a vuestro gusto. No hace falta que copiéis los
+comentarios, solo que los entendáis. 
+
+{\scriptsize
+\begin{verbatim}
+
+[global]
+# Nombre del dominio y el reino de kerberos al que pertenece.
+   workgroup = DOMINIO
+   realm = DOMINIO.ES
+
+# Coger la informacion del servidor WINS mediante DHCP
+   include = /etc/samba/dhcp.conf
+
+# Obligamos a que samba siga la política de seguridad de 
+# un Directorio Activo. Tanto para la compartición de 
+# ficheros e impresoras como para la autentificacion de 
+# usuarios
+   security = ADS
+
+# Para la autentificacion coge cualquier servidor kerberos 
+# de la red. Podríamos definir uno determinado poniendo 
+# su nombre en lugar del asterisco
+   password server = *
+
+# Obligación de usar contraseñas encriptadas
+   encrypt passwords = true
+
+# Tipo de base de datos para las contraseñas encriptadas, 
+# archivos .tdb Tener cuidado de que aparezca guest aquí, 
+# da error al iniciar samba.
+# Unicamente sirve cuando samba actua como servidor.
+   passdb backend = tdbsam
+
+#================= WINBIND SETTINGS ===============
+# Usar el dominio DOMINIO por defecto
+   winbind use default domain = yes
+# Nombre de Netbios, poner el nombre del equipo
+   netbios name = nombre-netbios
+# Separador para diferenciar el Dominio del usuario
+   winbind separator = /
+# Enumeración de los usuarios y grupos, para Dominios 
+# con una gran cantidad de usuarios >20000, no es 
+# recomendable enumerar los usuarios, pues tardaría 
+# mucho en hacerlo.
+# Por ello, cada vez que se solicita, el id de un usuario, 
+# se hace la conversión en el acto, no la almacena.
+   winbind enum users = no
+   winbind enum groups = no
+# Crear una tabla de correspondencia entre SID y UID/GID, 
+# con los siguientes rangos. El rango, puede ser cualquiera, 
+# aunque el rango debe ser superior al numero de usuarios 
+# en el dominio. En caso contrario, algunos usuarios pueden 
+# no acceder al sistema (de forma aleatoria)
+   idmap uid = 10000-200000
+   idmap gid = 10000-200000
+# Shell y directorio Home predeterminados. Crear el 
+# directorio /home/DOMINIO
+   template shell = /bin/bash
+   template homedir = /home/DOMINIO/%U
+\end{verbatim}
+}
+
+El nombre de net-bios debe ser el mismo  con el que el
+administrador del dominio ha creado la cuenta de máquina en el
+Directorio Activo y ha de coincidir con el que pusisteis en el
+fichero {\tt /etc/hosts.}
+
+
+\sectiontext{white}{black}{CONFIGURANDO KERBEROS}
+
+Una vez terminada la configuración de Samba, comenzaremos con la de Kerberos.
+Al igual que {\tt /etc/samba/smb.conf}, aquí se indica lo necesario para nuestro dominio, pero lo
+podéis modificar a vuestro gusto. Para ello modificamos el fichero
+{\tt /etc/krb5.conf}:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+default_realm = DOMINIO.ES
+[realms]
+  DOMINIO.ES = {
+    kdc = controlador_dominio.dominio.es
+    admin_server = controlador_dominio.dominio.es
+    default_domain = dominio.es
+  }
+[domain_realm]
+  dominio.es = DOMINIO.ES
+  .dominio.es = DOMINIO.ES
+\end{verbatim}
+}
+\end{mexample}
+
+Los datos para {\tt kdc}, y {\tt admin\_server}, se los debéis
+preguntar a vuestro administrador del dominio. 
+
+Ahora llega la hora de la verdad, ver si todo se ha configurado perfectamente.
+Para comprobar el correcto funcionamiento de Samba, debemos arrancar los demonios correspondientes:
+
+\begin{mexample}
+{\small\tt
+/etc/init.d/samba start
+}
+\end{mexample}
+
+
+Y si al re-arrancar el demonio, no nos produce ningún error, entonces estará bien configurado.
+
+\begin{mexample}
+{\small\tt
+/etc/init.d/samba restart
+}
+\end{mexample}
+
+
+\eOpage
+
+\bOpage{introcolor}{0.25}{EN LA PRÁCTICA}
+
+\end{multicols}
+
+\rput(8.5,-0.5){\resizebox{16cm}{!}{{\epsfbox{images/uniondom.eps}}}}
+
+\vspace{3cm}
+
+\begin{multicols}{2}
+
+
+Para comprobar el funcionamiento de kerberos lo podemos hacer con este comando:
+
+\begin{mexample}
+{\small\tt
+kinit -V nombre\_usuario\_dominio
+}
+\end{mexample}
+
+
+
+Donde {\tt nombre\_usuario\_dominio} (p.e. Juan.electron, jisorrib)
+puede ser cualquier usuario del dominio, no es necesario que sea
+administrador. Luego introducimos la contraseña, y si es correcta
+indica la versión de Kerberos utilizada, Kerberos 5. 
+
+\sectiontext{white}{black}{INICIO Y UNIÓN AL DOMINIO}
+
+	
+Antes de continuar, debe estar creada la cuenta del equipo en el
+Directorio Activo con el nombre que se le ha dado en el sistema
+GNU/Linux. Dicho nombre de equipo ha de ser el mismo que el que pusimos en
+el archivo de configuración de samba (net-bios name). Es el
+administrador quien añade la máquina al dominio, por tanto debemos
+esperar a que el administrador nos lo notifique. 
+
+A continuación vamos a comprobar que nos conectamos e iniciamos
+correctamente la comunicación con el Directorio Activo. Para ello,
+desde consola de comandos ejecutamos como superusuario el siguiente
+comando: 
+
+\begin{mexample}
+{\small\tt
+net ads status -U nombre\_net-bios\_maquina
+}
+\end{mexample}
+
+El nombre\_net-bios\_maquina es el nombre net-bios que corresponde a
+nuestro sistema. Si se acaba de unir, esperar y comprobarlo un tiempo
+después (5-10 minutos). Si la conexión es correcta la salida del
+comando nos muestra la información de la máquina que se conecta,
+contenida en el Directorio Activo (nombre, grupo al que pertenece,
+etc.). 
+
+\begin{entradilla}
+{\em Tras añadir una máquina al DA \color{introcolor}{su contraseña es nula}}
+\end{entradilla}
+	
+Cuando se añade una nueva cuenta de máquina al Directorio Activo, la
+contraseña de máquina es nula, es decir, no tiene ninguna contraseña
+asignada. Para que ninguna otra máquina con el mismo nombre net-bios
+se pueda hacer pasar por la que estamos configurando, debemos cambiar
+aquella contraseña nula tanto en el Directorio Activo como en nuestro
+ordenador. Esto se realiza mediante los siguientes pasos: 
+
+\begin{enumerate}
+\item  Para cambiar la contraseña de la máquina (está en la base de
+  datos de contraseñas de samba) por la que tiene almacenada el
+  Directorio Activo se ejecuta como root: 
+
+\begin{mexample}
+{\small\tt
+net changesecretpw -w DOMINIO -f
+}
+\end{mexample}
+
+Como la cuenta de máquina está recién añadida al dominio, no tiene
+ninguna contraseña todavía. Por tanto, como respuesta, no introducimos
+nada y pulsamos ``enter''.   
+
+\item Una vez que la máquina conoce la contraseña (nula) que le ha
+  asignado el {\em DA} para su comunicación, se le ha de pedir al
+  servidor de dominio que genere una contraseña aleatoria y se la
+  comunique al ordenador que estamos uniendo a ese dominio. Esto se
+  efectúa ejecutando el siguiente comando:  
+
+\begin{mexample}
+{\small\tt
+net ads changetrustpw
+}
+\end{mexample}
+
+
+La nueva contraseña de máquina es generada aleatoriamente y enviada a
+nuestro equipo que la almacena encriptada, y por lo tanto sólo la
+conocerá el servidor que la generó, y nuestro equipo. 
+
+\end{enumerate}
+
+{\bf ¡¡Tras ejecutar este comando, no volver a ejecutar el comando
+  anterior (changesecretpw)!!.} 
+
+Si lo hacemos, tendremos que volver a crear otra vez la cuenta de
+máquina en el dominio, pues habremos cambiado la contraseña de nuestro
+ordenador que no coincidirá con la que nos asignó el servidor del
+dominio -lo que se produce tras ejecutar el comando {\tt
+  changetrustpw}- y nos dará un error al intentar autenticarnos o al
+pedir otra contraseña aleatoria ({\tt changetrustpw}).
+
+Si todo ha ido bien el sistema nos lo indicará al final. El comando
+modifica la contraseña de máquina en el fichero {\tt
+  /var/lib/samba/secrets.tdb}. Para mayor seguridad y evitar
+suplantaciones indeseadas, sería conveniente ejecutar '{\tt net ads
+  changetrustpw}' -habitualmente cada dos o tres meses, p.e.- 
+
+Por decirlo de alguna manera, nuestra máquina ya ha sido
+``presentada'' en el Directorio Activo y ambos -``{\em DA}'' y Samba
+local- se conocen de manera inequívoca. 
+
+\sectiontext{white}{black}{INICIANDO SESIÓN}
+
+La siguiente tarea es que los usuarios de la máquina que se está
+configurando sean capaces de acceder a iniciar sesión identificándose
+con su nombre de Usuario y contraseña del {\em DA} del dominio. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\eOpage
+
+
+
+\bOpage{introcolor}{0.25}{EN LA PRÁCTICA}
+
+\end{multicols}
+
+\rput(8.5,-2.5){\resizebox{13.0cm}{!}{{\epsfbox{images/autentificacion.eps}}}}
+\rput(17.5,-11.3){\resizebox{!}{1.0cm}{{\epsfbox{images/warning.eps}}}}
+
+\vspace{6.0cm}
+
+\begin{multicols}{2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+Es aquí en donde interviene el programa Winbind - relacionado siempre
+con SAMBA, KERBEROS y PAM, cada uno en su respectivo ámbito-, que,
+como ya se indicó, establece la asociación entre los identificadores
+de las cuentas locales que crea GNU/Linux  y las del {\em DA} de Windows.
+
+
+
+Para arrancar el demonio Winbind, la máquina debe saber el SID del
+dominio, donde ha de consultar las contraseñas de usuarios. Una vez
+conocido el SID lo almacenará en el fichero {\tt
+  /var/lib/samba/secrets.tdb}. Para ello hay que ejecutar como root: 
+
+\begin{mexample}
+{\small\tt
+net rpc getsid -w DOMINIO
+}
+\end{mexample}
+
+
+Si todo ha ido bien, nos lo confirmará diciendo que el SID del DOMINIO
+esta en secrets.tdb. (En caso de error, sería conveniente comprobar en
+principio que sí tenemos esta linea en el archivo de configuración de
+samba:  
+
+\begin{mexample}
+{\small\tt
+include = /etc/samba/dhcp.conf
+}
+\end{mexample}
+
+ya que el error puede producirse por haber omitido o no haber escrito bien dicha línea).
+
+A partir de ahora se puede arrancar el demonio Winbind, sin que tenga ningún error. Ejecutar como root:
+
+\begin{mexample}
+{\small\tt
+/etc/init.d/winbind start
+}
+\end{mexample}
+
+Para comprobar que funciona nuestra comunicación con el servidor del
+dominio se pueden  ejecutar estos comandos de información de Winbind. 
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+wbinfo -t		#Comprobar la autentificacion de máquina
+wbinfo -D DOMINIO	#Conocer información del dominio
+\end{verbatim}
+}
+\end{mexample}
+
+El comando {\tt wbinfo} usa Winbind para recuperar información relativa al dominio.
+
+
+\sectiontext{white}{black}{CONFIGURACIÓN DE LINUX-PAM}
+
+Linux-PAM se encarga de determinar qué personas están autorizadas a
+usar el sistema, qué métodos de autenticación usarán y qué tipo de
+sesión podrán iniciar. Mejor dicho, qué bases de datos ha de usar para
+encontrar la información que le indicará al sistema todos aquellos
+datos. Por tanto, debemos decirle los lugares (bases de datos) donde
+se encuentran los usuarios -tanto los locales como los del
+dominio-. Para ello modificaremos 4 ficheros comunes que son usados
+por todos los programas que necesitan la autenticación de usuarios
+(gdm, login, etc). 
+
+
+\bigskip
+
+{\color{red}{{\bf PONED MUCHO CUIDADO, Y HACED COPIA DEL DIRECTORIO
+      /etc/pam.d/ . \\Si después no podéis iniciar el ordenador, no os
+      preocupéis. Arrancáis un GNU/Linux Live-cd, montáis la partición de
+      GNU/Linux del disco duro, y restauráis el directorio {\tt
+      /etc/pam.d/} o los ficheros que habéis tocado.}}} 
+
+\bigskip
+
+El fichero {\tt /etc/pam.d/common-account}, nos indica dónde buscar las
+cuentas de usuario. Para ello, le decimos al sistema que es suficiente
+que el usuario sea del dominio ({\tt winbind}), y en caso de que no lo sea,
+es necesario que el usuario sea del sistema ({\tt local}).
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+account sufficient	pam_winbind.so
+account	required	pam_unix.so try_first_pass
+\end{verbatim}
+}
+\end{mexample}
+
+\begin{entradilla}
+{\em {\color{introcolor}{Linux PAM permite}} personalizar el proceso de autenticación en el sistema}
+\end{entradilla}
+
+Mediante este fichero {\tt /etc/pam.d/common-auth}, hacemos que el
+sistema use determinadas formas de autenticación. Para Winbind será
+mediante Kerberos. Para el acceso local usa las cuentas del sistema. 
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+auth	sufficient	pam_winbind.so
+auth	required	pam_unix.so nullok_secure try_first_pass
+\end{verbatim}
+}
+\end{mexample}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ebOpage{introcolor}{0.25}{EN LA PRÁCTICA}
+
+
+En el fichero {\tt /etc/pam.d/common-password}, le indicamos dónde se
+encuentran las contraseñas que ha de cotejar (la librería {\tt
+  pam\_winbind.so} indica que las contraseñas se han de comprobar en
+el dominio). 
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+password sufficient pam_winbind.so
+password required   pam_unix.so nullok obscure\ 
+                    min=4 max=8 md5 \
+                    try_first_pass
+\end{verbatim}
+}
+\end{mexample}
+
+Por último, el fichero {\tt /etc/pam.d/common-session}, es utilizado
+después de que un usuario se haya autenticado. 
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+session  requisite pam_winbind.so
+session  required  pam_mkhomedir.so \
+                   skel=/etc/skel
+                   umask=0077
+session  required  pam_unix.so try_first_pass
+\end{verbatim}
+}
+\end{mexample}
+	
+La librería {\tt pam\_mkhomedir.so} crea el directorio {\tt home}
+correspondiente al usuario en {\tt /home/DOMINIO/} -este último ha de
+crearse ``a mano'' por el administrador del sistema-. Se crea copiando
+todos los ficheros que hay en {\tt /etc/skel} y le atribuye los
+permisos 700 (lectura, escritura y ejecución solo para el usuario).  
+
+Una vez terminada la configuración, ya se puede usar el sistema tanto
+con cuentas de usuario del dominio, como con cuentas de usuario
+locales. Para acceder al sistema se le ha de indicar el usuario y la
+contraseña. Con esta configuración no haría falta poner el dominio
+pues solo tenemos un reino configurado en {\tt /etc/}.
+
+
+\columnbreak
+\sectiontext{white}{black}{POSIBLES PROBLEMAS}
+
+Uno de los problemas a la hora de la configuración, es que se realiza
+con un editor de texto normal y corriente, como emacs o nano (vi no es
+normal, :) y puede llevarnos a cometer errores tipográficos. Tener
+sobretodo cuidado con PAM, pues nos podemos cargar el sistema de
+autenticación de GNU/Linux, y sufriríamos mucho. Aunque puede ser una
+enorme ventaja pues se entienden mucho mejor las cosas. 
+
+Bueno aquí os digo donde hemos recurrido cuando algo no ha funcionado
+como debería: 
+
+\begin{itemize}
+\item Si tarda mucho en iniciar sesión, entonces hay un problema con
+  winbind. Comprobar el fichero {\tt /etc/nsswitch.conf} , para que no
+  busque grupos con winbind. De todas formas, parar winbind, pues
+  ralentiza mucho el sistema. Si no lo podéis parar con el script del
+  demonio, buscar el pid y matarlo con {\tt kill -9}. Esto lo mata de
+  verdad. No ocurre nada si lo hacemos, no os preocupéis. 
+
+\item Log de los programas:
+\begin{itemize}
+\item {\tt /var/log/auth.log} : Este es muy útil para saber porque no ha iniciado un usuario.
+\item {\tt /var/log/samba/log.winbindd} : Indica si ha habido errores al iniciar el demonio winbind.
+\item {\tt /var/log/daemon.log }: Indica como se han iniciado los demonios, usado para comprobar samba.
+\end{itemize}
+\end{itemize}
+
+\sectiontext{white}{black}{SOBRE LOS AUTORES}
+
+Los autores son estudiantes de 3º de I.T.Informática de Sistemas en la
+Escuela Politécnica Superior de Albacete en la UCLM.
+
+
+\end{multicols}
+
+
+\rput(8.5,-3.5){\resizebox{17cm}{!}{{\epsfbox{images/acceso.eps}}}}
+
+\clearpage
+\pagebreak

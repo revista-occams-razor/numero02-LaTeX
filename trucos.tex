@@ -1,0 +1,234 @@
+% Este fichero es parte del Número 2 de la Revista Occam's Razor
+% Revista Occam's Razor Número 2
+%
+% (c) 2007, Occam's Razor.
+% Contenido disponible bajo licencia Reconocimiento-No comercial-Compartir bajo la misma licencia 2.5 España de Creative Commons. Para ver una copia de esta licencia, visite http://creativecommons.org/licenses/by-nc-sa/2.5/es/ o envie una carta a Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+% 
+
+\rput(3,-2.5){\resizebox{!}{6cm}{{\epsfbox{images/varita3.eps}}}}
+\begin{flushright}
+\msection{red}{black}{0.1}{TRUCOS}
+
+\mtitle{6cm}{Con un par... de líneas}
+
+\msubtitle{8cm}{Chuletillas para hacer cosas mú rápido}
+
+{\sf por Tamariz el de la Perdíz}
+
+{\psset{linecolor=black,linestyle=dotted}\psline(-10,0)}
+
+\end{flushright}
+
+\vspace{4mm}
+
+\begin{multicols}{2}
+\raggedcolumns
+
+
+\sectiontext{white}{black}{CAMBIARSE AL DIRECTORIO HOME}
+\hrule
+\vspace{2mm}
+
+Aunque esto sea bastante tonto, parece que hay mucha gente que no
+conoce las distintos atajos para acceder a su directorio
+\verb.HOME.. Aquí van las más comunes:
+
+
+
+\vspace{2mm}
+
+\hrule
+{\footnotesize
+\begin{verbatim}
+occam@razor # cd
+occam@razor # cd $HOME
+occam@razor # cd ~
+\end{verbatim}
+}%$
+\hrule
+
+\vspace{2mm}
+
+De especial interés es la última opción que nos permite cambiarnos de
+forma rápida al directorio \verb.HOME. de cualquier otro usuario del
+sistema, simplemente añadiendo el nombre de usuario. Y por supuesto
+podemos acceder a cualquier subdirectorio bajo \verb.HOME..
+
+
+\vspace{2mm}
+
+\hrule
+{\footnotesize
+\begin{verbatim}
+occam@razor # cd ~occams
+occam@razor # cd ~pepe
+occam@razor # cd ~/download
+occam@razor # cd ~ocams/download
+\end{verbatim}
+}%$
+\hrule
+
+\vspace{2mm}
+
+
+
+\sectiontext{white}{black}{COMPILANDO EN UN CORE DUO}
+\hrule
+\vspace{2mm}
+
+La utilidad \verb.make. como la mayoría de las disponibles en
+cualquier sistema UNIX tienen un montón de opciones, en general, no
+muy conocidas. A parte del infame -f, la opción -j nos permite iniciar
+varios procesos para ejecutar de forma ``paralela'' las reglas del
+\verb.Makefile..
+
+Aquí tenéis un pequeño ejemplo con sus tiempos de ejecución en un
+Intel Core Duo.
+
+\vspace{2mm}
+\hrule
+{\footnotesize
+\begin{verbatim}
+occam@razor $ time make
+real	0m45.182s
+user	0m31.326s
+sys	0m12.801s
+occame@razor $  time make -j 2
+real	0m27.043s
+user	0m27.314s
+sys	0m11.973s
+occam@razor $ time make -j 3
+real	0m26.148s
+user	0m27.770s
+sys	0m11.769s
+occam@razor $ time make -j 4
+real	0m27.642s
+user	0m28.298s
+sys	0m11.689s
+\end{verbatim}		   
+}
+\hrule
+\vspace{2mm}
+
+Como podéis observar, al lanzar dos procesos en paralelo se observa
+una sustancial mejora, pero que no mejora al aumentar el número de procesos.
+
+
+\sectiontext{white}{black}{IMPRIMIENDO DOS PÁGINA EN UNO}
+\hrule
+\vspace{2mm}
+
+Si dispones de un cómodo entorno gráfico para configurar la impresión,
+esto no tiene mucho interés, pero en el caso de que solo dispongamos
+de una línea de comandos... como podemos imprimir dos páginas en
+una?. Pues usando alguno de estos comandos
+
+\vspace{2mm}
+\hrule
+{\footnotesize
+\begin{verbatim}
+occam@razor $ a2ps -2 --medium=A4 doc1.ps 
+occam@razor $ a2ps -2 --medium=A4 doc1.ps -o output.ps
+occam@razor $ pdfnup -nup 2 doc1.pdf
+occam@razor $ psnup -nup 2 doc1.ps
+\end{verbatim}%$
+}
+\hrule
+\vspace{2mm}
+
+Como os podéis imaginar los comandos \verb.pdfnup. y \verb.psnup. son
+específicos para manejar ficheros pdf y postscript. El comando
+\verb.a2ps. es mucho más versátil permitiendo manejar también ficheros
+de texto.
+
+Cada uno de ellos tiene un montón de opciones, así que no os dejéis de
+consultar las páginas del manual de cada uno de ellos.
+
+
+\vspace{6mm}
+
+\sectiontext{white}{black}{DESCARGANDO PÁGINAS COMO FICHEROS DE TEXTO}
+\hrule
+\vspace{2mm}
+
+En ocasiones resulta interesante poder descargar páginas web desde la
+línea de comandos como texto plano. Esto permite, por ejemplo,
+procesar el contenido de la página con un script, para extraer la
+información que nos interese de forma sencilla.
+
+%A partir de un fichero de texto que contenga una columna de datos, podemos obtener rápidamente una representación gráfica de los mismos utilizando la herramienta \texttt{gnuplot} utilizando los siguientes comandos:
+
+\vspace{2mm}
+
+\hrule
+{\scriptsize
+\begin{verbatim}
+occams@razor $ lynx -dump \
+> http://webs.uvigo.es/occams-razor > occams.txt
+
+occams@razor $ elinks -dump -dump-width 150 \
+> http://webs.uvigo.es/occams-razor > occams.txt
+
+\end{verbatim}
+}
+\hrule
+\vspace{2mm}
+%$
+
+Para los que no los conozcáis, \verb.lynx. y \verb.elinks. son dos
+navegadores en modo texto. El segundo es especialmente interesante
+puesto que soporta tablas y frames, con lo que permite visualizar de
+forma correcta un mayor número de sitios web.
+
+
+\vspace{6mm}
+
+\sectiontext{white}{black}{CONEXIONES ACTIVAS EN TU SISTEMA}
+\hrule
+\vspace{2mm}
+
+Podemos conocer las conexiones activas en nuestro sistema en cualquier
+momento, utilizando el comando netstat.
+
+\vspace{2mm}
+
+\hrule
+{\scriptsize
+\begin{verbatim}
+occams@razor $ netstat -tuanp
+\end{verbatim}
+}
+\hrule
+\vspace{2mm}
+%$
+
+
+
+%% Call for tricks
+
+\vspace{2mm}
+
+\colorbox{introcolor}{
+\begin{minipage}{.9\linewidth}{
+\textbf{\textsf{Envía tus trucos}}
+
+\vspace{1mm}
+
+\textsf{Puedes enviarnos esos trucos que usas a diario para compartirlos con el resto de lectores a la dirección: }
+
+\vspace{2mm}
+
+\texttt{occams-razor@uvigo.es}
+}
+\end{minipage}
+}
+
+\raggedcolumns
+\pagebreak
+
+\vspace{6cm}
+\end{multicols}
+
+\clearpage
+\pagebreak
+

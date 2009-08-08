@@ -1,0 +1,539 @@
+% Este fichero es parte del Número 2 de la Revista Occam's Razor
+% Revista Occam's Razor Número 2
+%
+% (c) 2007, Occam's Razor
+% Contenido disponible bajo licencia 
+% Reconocimiento-No comercial-Compartir bajo la misma licencia 2.5 España 
+% de Creative Commons. 
+%
+% Para ver una copia de esta licencia, visite 
+% http://creativecommons.org/licenses/by-nc-sa/2.5/es/ o envie una
+% carta a Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+% 
+
+% Seccion Distros
+%
+% Incluye imagen del artículo
+
+
+\rput(1.5,-1.7){\resizebox{!}{9cm}{{\epsfbox{images/cd-island-1.eps}}}}
+
+% -------------------------------------------------
+% Cabecera
+\begin{flushright}
+\msection{introcolor}{black}{0.25}{DISTROS}
+
+\mtitle{7cm}{Distribuye tus programas en Live-CD}
+
+\msubtitle{9cm}{Personalizando DSL y KNOPPIX}
+
+{\sf por Er Tuneao}
+
+
+
+{\psset{linecolor=black,linestyle=dotted}\psline(-12,0)}
+\end{flushright}
+
+\vspace{2mm}
+% -------------------------------------------------
+
+\begin{multicols}{2}
+
+\intro{introcolor}{A}{lguna vez os han pasado un programa y cuando habéis intentado
+compilarlo, un montón de librerías perdidas os han desanimado?. O... os
+gustaría enseñarle a alguien ese programa tan chulo que habéis
+escrito, pero habéis desistido por el hecho de tener que explicar como
+configurar todo el entorno para que funcione?. No desesperéis. Los
+live-CDs vienen al rescate.
+}
+
+
+Los live-CDs se han popularizado en los últimos años y la verdad es
+que son algo realmente útil. Seguro que todos sabéis de qué estamos
+hablando, pero por si todavía queda algún despistado, os diremos que,
+un live-CD permite arrancar un sistema completo desde CD 
+(o DVD) sin necesidad de instalar absolutamente nada en el disco duro
+del ordenador que lo ejecute.
+
+Las posibilidades son ilimitadas, pero nosotros nos centraremos en una
+aplicación muy sencilla para ilustrar el proceso y que luego podáis
+llevar a cabo vuestros propios proyectos.
+
+Sencillamente vamos a ver como añadir nuestros propios programas a una
+distribución live, de forma que podamos distribuirlos con la seguridad
+de que se van a ejecutar en un entorno correcto. Bueno, esto es así,
+siempre y cuando vuestro programa no utilice un hardware
+super-específico que nadie más que vosotros tiene. En ese caso ya solo
+os queda invitar a unas cervezas en casa para poder enseñar vuestra
+creación :).
+
+Todo este proceso lo vamos a realizar con DSL. Sin
+embargo, DSL está basada en KNOPPIX, al igual que una gran parte de las
+distribuciones live existentes. Así que, la mayoría de lo que contemos
+en lo que sigue lo podréis aplicar a cualquiera de esos derivados.
+
+\sectiontext{white}{black}{PREPARANDO NUESTRO ENTORNO}
+
+El proceso que vamos a seguir para generar nuestra Live-CD se puede
+dividir en dos pasos fundamentales. El primero, lo podríamos llamar,
+``paso de preparación'', y solo lo tendremos que hacer una vez. El
+segundo, que podríamos llamar ``paso de producción'' tendremos que
+hacerlo cada vez que modifiquemos nuestro Live-CD.
+
+El paso de preparación consiste en ``poblar'' un par de directorios a
+partir de los cuales se generará nuestra distribución. Para que todo
+sea más sencillo, vamos a trabajar sobre un directorio concreto, el
+cual, obviamente, podréis cambiar según os venga en gana. Así que
+empezaríamos con algo como esto:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor $ su -
+Password:
+root@razor # mkdir -p /opt/vm/dsl-occam
+root@razor # cd /opt/vm/dsl-occam
+root@razor # mkdir filesystem
+root@razor # mkdir master
+root@razor # mkdir temp
+\end{verbatim}
+}%$
+\end{mexample}
+
+Bien, acabamos de crear tres directorios sobre los que
+trabajaremos. El primero, \verb.filesystem., será donde generemos el sistema
+de ficheros de nuestra {\em live}. El segundo, \verb.master., es el que contendrá
+los ficheros que irán en el CD... básicamente un sistema de arranque y
+una imagen comprimida del contenido del directorio anterior
+(\verb.filesystem.).
+
+\begin{entradilla}
+{\em ``{\color{introcolor}{Los Live-CD basados en KNOPPIX}} son muy fáciles de personalizar''}
+\end{entradilla}
+
+Finalmente, el directorio \verb.temp., lo utilizaremos para cosas temporales
+:). Observad que lo primero que hacemos es hacernos {\em root} (valga la
+redundancia). Varios de los pasos que siguen se pueden hacer como 
+usuario normal, pero otros no, así que en este texto haremos todo el
+proceso como {\em root}, aunque en general esto no es recomendable.
+
+
+\sectiontext{white}{black}{MANOS A LA OBRA}
+
+Lo primero que tenemos que conseguir es una imagen del live-CD que
+queremos modificar... podríamos crearla nosotros mismos desde cero,
+pero en el punto en el que estamos eso no nos aportaría gran
+cosa. Quizás en el futuro hablemos de este tema.
+
+Después de descargar nuestra imagen iso DSL, la montamos, para poder
+acceder a su contenido. Esto se hace con el comando \verb.mount. y el
+dispositivo de {\em loopback}.  
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+root@razor # mount -o loop dsl-3.2.iso temp
+root@razor # cp -a temp/* master/.
+root@razor # umount temp
+\end{verbatim}
+}
+\end{mexample}
+
+Aja!... una de esas cosas temporales.
+
+Lo que acabamos de hacer es una copia del contenido de la imagen iso
+que hemos descargado. En el directorio \verb.master. tendremos los ficheros
+necesarios para generar el CD final con nuestra distribución {\em live}. Observad en la
+secuencia de comandos anterior el uso del {\em switch} \verb.-a. durante la
+copia... Curiosidad?... Pues solo hay que consultar el manual ;)
+
+
+\ebOpage{introcolor}{0.25}{DISTROS}
+
+\sectiontext{white}{black}{DERIVADOS KNOPPIX}
+
+Los live-CDs basados en KNOPPIX, tienen, prácticamente todos, la misma
+estructura. Un directorio llamado \verb.boot. en el que se encuentran los
+ficheros necesarios para el sistema de arranque y un directorio llamado \verb.KNOPPIX.
+en el que se encuentra un único fichero, muy gordo, llamado KNOPPIX.
+
+
+\begin{entradilla}
+{\em ``El primer paso del proceso consiste en{\color{introcolor}{
+destripar un live-CD}}''}
+\end{entradilla}
+
+El proceso de boot se lleva a cabo utilizando el paquete {\em isolinux} (la versión
+para CDs de {\em syslinux}) y hablaremos sobre él más tarde. El fichero
+\verb.KNOPPIX/KNOPPIX. es donde realmente está todo lo que contiene la
+distribución. Se almacena como una imagen de disco comprimida que el sistema
+montará durante el proceso de arranque.
+
+Bien. Ese es nuestro objetivo. Tenemos que meter nuestros programas y ficheros ahí
+dentro.
+
+\sectiontext{white}{black}{DESCOMPRIMIENDO KNOPPIX}
+
+Lo primero que tenemos que hacer es acceder al contenido del fichero
+KNOPPIX, para lo que necesitamos dispoder en nuestro sistema del
+módulo {\em cloop}. Este módulo proporciona un dispositivo de {\em loopback}
+igualito que {\em loop} (el que usamos para montar la imagen iso del CD),
+pero que maneja ficheros comprimidos.
+
+La forma de utilizarlo es muy sencilla
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+root@razor # modprobe cloop \
+> file=master/KNOPPIX/KNOPPIX
+root@razor # mount -o ro /dev/cloop0 temp
+root@razor # cp -a temp/* filesystem/.
+root@razor # umount temp
+\end{verbatim}
+}
+\end{mexample}
+
+Ejem!... otra cosa temporal!
+
+Si ahora le echáis un ojo al directorio \verb.filesystem., veréis algo
+mucho más familiar. El sistema de ficheros original (KNOPPIX) no lo podemos modificar
+directamente y esa es la razón de que realicemos una copia del
+mismo. En cuanto veamos como se genera entenderéis el porqué de
+ello. A partir de aquí trabajaremos sobre esta copia almacenada en \verb.filesystem..
+
+Bien, en este punto termina el ``paso de preparación''. En estos
+momentos tenemos todo lo que necesitamos en el lugar en el que lo queremos. Ahora solo
+necesitamos saber como modificar nuestro sistema de ficheros y como
+generar un nuevo CD... es decir, como volver a juntarlo todo.
+
+\sectiontext{white}{black}{MODIFICANDO EL SISTEMA}
+
+Ahora ya podemos acceder al sistema de ficheros y añadir lo que
+queramos. Esto lo podemos hacer de dos formas.
+
+La primera es a saco. Copiamos los ficheros que necesitamos en el
+lugar adecuado dentro de \verb.filesystem. y ya está. Esta forma de hacerlo no
+es muy recomendable, a no ser que sepamos muy bien lo que estamos
+haciendo y lo que vayamos a instalar sea un binario sencillo o con las
+dependencias muy claras. 
+Si solo vamos a añadir o modificar ficheros de configuración quizás
+esta sea la forma más cómoda.
+
+
+La forma correcta es utilizar el comando \verb.chroot.. Este comando nos
+permite cambiar el directorio raíz del sistema de ficheros y por lo tanto, a
+todos los efectos (bueno, casi) es como si hubiéramos arrancado con el
+CD que estamos manipulando.
+
+La forma de hacerlo es la siguiente.
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+root@razor # chroot filesystem
+bash-2.05b# mount -t proc /proc proc
+\end{verbatim}
+}
+\end{mexample}
+
+Ya estamos dentro!. Ahora cualquier cosa que instalemos, ya sea a
+partir de sus fuentes (necesitamos un entorno de desarrollo,
+compilador, librerías, includes,...) o con el sistema de paquetes que proporcione la
+distribución con la que estamos trabajando, acabará en nuestro live-CD
+en algunos minutos.
+
+Observad que tras el comando \verb.chroot. hemos montado el sistema de
+ficheros \verb.proc.... Dependiendo de lo que vayamos a hacer puede no ser
+necesario. Simplemente, ciertas utilidades lo utilizan para obtener
+información del sistema y si este no existe... pues fallan.
+
+Si utilizáis \verb./proc., recordad desmontarlo antes de salir del
+entorno \verb.chroot.,
+cuando hayáis terminado de instalar lo que necesitéis.
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+bash-2.05b# umount /proc
+bash-2.05b# exit
+root@razor # 
+\end{verbatim}
+}
+\end{mexample}
+
+
+\sectiontext{white}{black}{GENERANDO EL NUEVO FS}
+
+Ahora que ya tenemos instalado nuestra {\em ``killing application''},, tenemos
+que generar un nuevo fichero KNOPPIX para incluir en nuestra imagen
+iso que finalmente se convertirá en un live-CD. Este proceso consta de
+varios pasos (obviamente).
+
+En primer lugar generamos una imagen iso normal y corriente de nuestro
+nuevo sistema de ficheros:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+root@razor # mkisofs -R -J -o temp.iso ./filesystem
+\end{verbatim}
+}
+\end{mexample}
+
+A continuación tenemos que generar una imagen comprimida que pueda
+manejar cloop. Esta imagen se genera con la utilidad
+\verb!create_compressed_fs! que suele estar incluida en las distribuciones
+que utilizan el dispositivo cloop, pero normalmente no está disponible
+en una instalación normal.
+
+
+
+Así que o conseguimos ese programa y lo instalamos o utilizamos el que está dentro del
+CD. Nosotros vamos a hacer esto último, ya que es mucho más
+directo. Así que simplemente ejecutamos:
+
+\ebOpage{introcolor}{0.25}{DISTROS}
+\rput(13,-21.5){\resizebox{!}{7.3cm}{{\epsfbox{images/dsl-occams-boot.eps}}}}
+
+
+\begin{mexample}
+{\footnotesize
+\begin{verbatim}
+root@razor # filesystem/usr/bin/create_compressed_fs \
+> temp.iso 65536 > master/KNOPPIX/KNOPPIX
+\end{verbatim}
+}
+\end{mexample}
+
+
+En el hipotético caso de que el programa no se ejecutara, porque la
+distribución utilice versiones diferentes de algunas librerías de las
+que tenemos instaladas, o cualquier otra cosa, este proceso siempre lo
+podremos ejecutar desde el entorno \verb.chroot..
+
+\begin{entradilla}
+{\em ``{\color{introcolor}Con create\_compressed\_fs} podemos crear imágenes
+comprimidas de un sistema de ficheros.''}
+\end{entradilla}
+
+
+Como comentario final, la última versión de KNOPPIX (v 5.1)
+proporciona una versión más moderna de \verb!create_compressed_fs!. Si
+estamos trabajando sobre esta distribución, simplemente tenemos que
+ejecutar:
+
+\begin{mexample}
+{\footnotesize
+\begin{verbatim}
+root@razor # filesystem/usr/bin/create_compressed_fs \ 
+> temp.iso master/KNOPPIX/KNOPPIX
+\end{verbatim}
+}
+\end{mexample}
+
+Ahora tendremos en el directorio \verb.filesystem. un fichero llamado
+\verb.KNOPPIX. que ya podremos utilizar directamente para generar
+nuestro live-CD. 
+
+\sectiontext{white}{black}{GENERANDO Y PROBANDO EL \\LIVE-CD}
+
+Con todos los elementos que hemos ido produciendo, la generación del
+live-CD se reduce a generar una imagen ``arrancable'' con los ficheros
+que hemos almacenado en el directorio \verb.master.. Pero antes debemos
+incluir nuestro nuevo sistema de ficheros.
+
+Esto es lo que debemos ejecutar:
+
+\begin{mexample}]
+{\small
+\begin{verbatim}
+root@razor # cp filesystem KNOPPIX \
+> master/KNOPPIX/KNOPPIX
+root@razor # mkisofs -pad -l -r -J -v \
+> -V "Occam's Razor. La Revista" -no-emul-boot \
+> -boot-load-size 4 -boot-info-table \
+> -b boot/isolinux/isolinux.bin \
+> -c boot/isolinux/boot.cat \
+> -hide-rr-moved -o dsl-occams.iso \
+> /opt/vm/dsl-occams/master/
+\end{verbatim}
+}
+\end{mexample}
+
+Un poco rollo, pero es lo que hay. Quien tenga curiosidad por lo que
+hace cada uno de los parámetros, podrá encontrar una descripción
+detallada de los mismos en la página del manual de \verb.mkisofs. y la página
+web de syslinux/isolinux.
+
+Lo único realmente importante de este comando es que el último
+parámetro debe ser un path absoluto. El resto de ficheros
+referenciados en el mismo se buscan a partir de este path.
+
+Cuando el comando anterior termine, obtendremos un
+fichero llamado dsl-occams.iso. Nuestro live-CD. 
+
+Para probarlo, podemos grabarlo en un CD y arrancar nuestra máquina
+con él, o utilizar un emulador como qemu. 
+
+Es recomendable la segunda opción, al menos hasta que hayáis
+comprobado que todo funciona correctamente... a no ser que necesitéis
+posavasos, para esa mesita tan mona que tenéis en la sala de estar :).
+ Para probar nuestro live-cd con qemu, solo tenemos que
+ejecutar este comando:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+root@razor # qemu -cdrom /tmp/dsl-occams.iso
+\end{verbatim}
+}
+\end{mexample}
+
+Voilá!... nuestra propia live.
+
+\sectiontext{white}{black}{PANTALLA DE ARRANQUE}
+
+Ahora vamos a darle algunos toques personales a nuestra live,
+para que se note que es única e incomparable. 
+
+Lo primero que vamos a hacer es cambiar la pantalla de arranque. Esto
+no tiene nada que ver con DSL ni con KNOPPIX, sino con isolinux, el
+gestor de arranque que estas distribuciones utilizan.
+
+Si echamos un ojo al directorio master/boot/isolinux, nos encontraremos con
+un fichero llamado logo.16... ese es el fichero que tenemos que
+modificar. Puesto que utiliza un formato especial, tendremos que
+utilizar algunos programas para obtenerlo.
+
+Lo primero que haremos es crear nuestra flamante imagen con nuestro
+programa de dibujo preferido (vamos, el GIMP :). Esta imagen, debe
+tener un tamaño de 640x400 y 16 colores o menos. Podéis trabajar con color
+real y convertir la imagen a {\em ``indexed color''} cuando la tengáis
+lista. 
+
+Grabaremos nuestra {\em ``splash screen''} en formato ppm para poder
+utilizar las herramientas con las que generar el fichero logo.16 de la
+siguiente forma:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor $ ppmtolss16 < logo.pnm > logo.16
+occam@razor $ cp logo.16 master/boot/isolinux
+\end{verbatim}
+}
+\end{mexample}
+
+\raggedcolumns
+\pagebreak
+\eOpage
+
+\bOpage{introcolor}{0.25}{DISTROS}
+\rput(8,-21){\resizebox{!}{9.5cm}{{\epsfbox{images/dsl-occam-desktop.eps}}}}
+
+No vamos a profundizar en las opciones que ofrece syslinux/isolinux,
+pero podéis echar un ojo al directorio isolinux. 
+
+
+
+En él encontraréis
+todas las opciones de arranque del sistema en los ficheros de texto
+que contiene. 
+
+\sectiontext{white}{black}{NUESTRA DISTRO}
+
+Bueno, nosotros hemos decidido crear una live-CD usando DSL con la que
+distribuir nuestra revista. Hemos copiado todos los ficheros de
+nuestra web en el directorio /opt/monkey/htdocs. Como servidor web
+utilizamos el que incluye DSL... monkey.
+
+Con todo esto, solo tenemos que lanzar nuestro servidor web en el
+arranque y que hacer que firefox muestre nuestra página web al arrancar el sistema
+gráfico. Para lanzar nuestro servidor web, modificaremos el fichero
+/opt/bootcal.sh, añadiendo una línea como la siguiente:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+/opt/monkey/bin/banana start
+\end{verbatim}
+}
+\end{mexample}
+
+Ahora solo tenemos que modificar el fichero /etc/skel/.xinitrc. Si
+editáis este fichero veréis una línea en la que se lanza el browser
+dillo. Modificaremos esa línea para que acceda a nuestro servidor web
+local de la siguiente forma:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+filefox http://localhost/ &>/dev/null &
+\end{verbatim}
+}
+\end{mexample}
+
+Mola!... Además ahora tenemos un servidor web con lo que nuestra
+revista se puede ver desde cualquier ordenador conectado a la misma
+red en la que se ejecuta nuestra distro :)... 
+
+En la figura podéis ver el resultado final.
+
+
+\sectiontext{white}{black}{ZONA GEEK. AUTOMATIZANDO EL PROCESO}
+
+Pues eso, como somos unos vaguillos, y un poco torpes, hemos tenido
+que generar unas cuantas imágenes hasta que la distro quedara como
+queríamos, así que... como no, escribimos un pequeño script para
+automatizar todo el ``proceso de generación'' :). Aquí podéis verlo:
+
+\begin{mexample}
+{\bf build.sh }
+{\scriptsize
+\begin{verbatim}
+#!/bin/sh
+
+echo "------------------------------------------------------------"
+echo "Construyendo image ISO del sistema de ficheros"
+echo "------------------------------------------------------------"
+mkisofs -R -J -o temp.iso ./filesystem/
+
+echo "------------------------------------------------------------"
+echo "Iniciando chroot..."
+./filesystem/usr/bin/create_compressed_fs temp.iso 65536 > \
+master/KNOPPIX/KNOPPIX"
+echo "------------------------------------------------------------"
+
+echo "------------------------------------------------------------"
+echo "Generando CD bootable"
+echo "------------------------------------------------------------"
+mkisofs -pad -l -r -J -v -V "Occam's Razor. La Revista" \
+-no-emul-boot -boot-load-size 4 -boot-info-table \ 
+-b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat \
+-hide-rr-moved -o dsl-occams.iso /opt/vm/dsl-occams/master/
+
+rm temp.iso
+
+echo "HECHO!!!"
+\end{verbatim}
+}
+\end{mexample}
+
+Como podéis ver es una tontería, pero hace las pruebas más llevaderas,
+sobre todo con KNOPPIX que requiere un tiempo no despreciable para generarse.
+
+
+\sectiontext{white}{black}{ESTO ES TODO}
+
+Bien, pues esto es todo. Hay muchísimas cosas más que se pueden
+personalizar y muchas opciones que probar. Esperamos que con lo que
+aquí os hemos contado tengáis suficiente para poder entreteneros un
+poco creando vuestros propios live-cds.
+
+
+
+\end{multicols}
+
+\clearpage
+\pagebreak

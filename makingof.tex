@@ -1,0 +1,563 @@
+% Este fichero es parte del Número 2 de la Revista Occam's Razor
+% Revista Occam's Razor Número 2
+%
+% (c) 2007, Occam's Razor. Contenido disponible bajo licencia 
+% Reconocimiento-No comercial-Compartir bajo la misma licencia 2.5 España 
+% de Creative Commons. 
+%
+% Para ver una copia de esta licencia, visite 
+% http://creativecommons.org/licenses/by-nc-sa/2.5/es/ o envie una
+% carta a Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+% 
+
+% Seccion Ratas de Biblioteca
+%
+% Incluye imagen del artículo
+
+
+\rput(2,-2.3){\resizebox{!}{7cm}{{\epsfbox{images/makingof.eps}}}}
+
+% -------------------------------------------------
+% Cabecera
+\begin{flushright}
+\msection{introcolor}{black}{0.25}{MAKING OF}
+
+\mtitle{7cm}{El ``Making of'' de...}
+
+\msubtitle{5cm}{... Occam's Razor}
+
+{\sf por Er Escribano}
+
+{\psset{linecolor=black,linestyle=dotted}\psline(-12,0)}
+\end{flushright}
+
+\vspace{2mm}
+% -------------------------------------------------
+
+\begin{multicols}{2}
+
+
+% Introducción
+
+\intro{introcolor}{T}{ras la publicación de nuestro primero número, muchos lectores se
+interesaron por como se había hecho la revista. Sobre todo por el uso
+de \LaTeX, que no es muy común para estos menesteres. Así que aquí está
+el ``meikinof'' de esta revista que estáis leyendo. Leed con cuidado, no
+vaya a ser que entréis en un bucle infinito :)
+}
+
+
+
+Antes de que esto se convirtiera en una revista, trabajaba yo para una
+empresa de alta tecnología ubicada en una conocida ciudad
+española. Por aquel entonces, me tocó escribir cienes de documentos
+para el proyecto en el que trabajaba.
+
+Como no podía ser de otra forma, los documentos se escribían usando el
+conocido procesador de textos ``Palabra'' (y las presentaciones se
+hacían con el software ``Punto Poderoso'' of curse -es decir, de maldición-). Seré rarito, pero
+ese programa me resultaba muy incomodo de utilizar, sobre todo con
+documentos muy grandes en los que los números de secciones, tablas y
+figuras eran bastante importantes.
+
+Puesto que los documentos finales se distribuían como PDFs, pensé: Si
+puedo generar un PDF similar pero usando \LaTeX, sería mucho más feliz :).
+
+\sectiontext{white}{black}{CUANDO TODO EMPEZÓ}
+
+Así que me puse a investigar por mi cuenta y riesgo, como poder
+generar una plantilla \LaTeX \hspace{1pt} idéntica a la plantilla {\em Word} que usaba mi
+compañía. Durante mi periplo por Internet y el CTAN ({\em Comprehensie
+\TeX \hspace{1pt}
+ Archive Network}) encontré un montón de paquetes muy interesantes, hasta
+que finalmente topé con la página del paquete ``pstricks''. 
+
+Las demos que en su página se podían ver eran bastante impresionantes,
+el paquete bastante sencillo de usar y las primeras pruebas que hice
+se parecían a... una revista!!!.
+
+Esta historia tiene dos finales. Uno es este que estás
+leyendo. El otro, menos agradable, se puede resumir en un montón de
+páginas en {\em Word}... Mucho que escribir y poco tiempo para innovar :(.
+
+Después de esta pequeña introducción ``histórica'' que a muchos os la
+traerá floja, vamos al grano.
+
+\sectiontext{white}{black}{PAQUETES CLAVE}
+
+Antes de meternos con los temas más peliagudos vamos a comentar que
+paquetes \LaTeX \hspace{1pt} hemos utilizado y para qué. Los que hayáis visitado la
+página web ya los conoceréis. Los que no, aquí tenéis la lista:
+
+\begin{itemize}
+\item {\bf Facy Headers:} Con el que generamos los pies de página con la
+  numeración. Este paquete es un viejo conocido de los usuarios \LaTeX.
+\item {\bf Lstlisting:} Para que los listados queden chulos.
+\item {\bf TexPos:} Este paquete se utiliza en la página de la editorial, y nos
+  permite posicionar bloques de texto de forma arbitraria en la
+  página. Los que alguna vez hayáis creado un póster de esos de
+  congresos, seguro que lo habéis utilizado de forma directa o
+  indirecta.
+\item {\bf PsTricks/PdfTricks:} Este paquete es el que nos permite generar la
+  cabecera de las páginas y posicionar imágenes por debajo del texto
+  libremente.
+\end{itemize}
+
+Si le echáis un ojo a las fuentes de la revista veréis que se incluyen
+muchos otros paquetes. Algunos son habituales y otros los necesitan
+los que acabamos de comentar. No vamos a entrar en ese nivel de
+detalle, pero si tenéis interés, no hay más que decirlo y se podría
+escribir algo.
+
+Para explicar los detalles vamos a intentar seguir el orden en el que
+aparecen las cosas que merecen ser mencionadas dentro de la revista. Por comodidad
+hemos definido algunos entornos y comandos \LaTeX \hspace{1pt} que podéis encontrar
+en el fichero {\tt portada.tex}. Los iremos comentando según los vayamos necesitando.
+
+\sectiontext{white}{black}{LA EDITORIAL}
+
+Como comentábamos más arriba, la página de la editorial es especial. Está
+compuesta de dos columnas irregulares. La primera contiene información
+sobre el número actual, se encuentra a la izquierda y es bastante más
+estrecha. La segunda columna ocupa la mayor parte de la página y
+contiene el texto de la editorial.
+
+Además de estas dos columnas tenemos una cabecera compuesta por una
+imagen y un texto que contiene entre otras cosas el título de la
+editorial. Comencemos por esta cabecera:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+\begin{flushright}
+\parbox[top]{0.9\linewidth}{\flushright
+{\resizebox{!}{1cm}{\textsc{Editorial}}}
+
+\vspace{2mm}
+
+{\Huge Aquí Estamos}
+
+by The Occam Team
+}
+\end{verbatim}
+}
+\end{mexample}
+
+
+\ebOpage{introcolor}{0.25}{MAKING OF}
+
+
+La secuencia de comandos de arriba no tiene mucho misterio. Los textos
+se justifican a la derecha y se agrupan en un {\tt parbox}. Con esto
+evitamos que el texto de la cabecera se extienda hasta ocupar toda la
+página.
+
+Para terminar la cabecera nos falta añadir la imagen.
+
+\begin{entradilla}
+{\em ``El uso de {\color{introcolor}{pstricks nos permite posicionar imágenes
+  arbitrariamente}} en la página''}
+\end{entradilla}
+
+
+Todas las imágenes de esta página se añaden utilizando {\em pstricks}, para
+poder posicionarlas donde nosotros queramos. Aquí están las líneas de interés:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+\rput(-10.5,7.0){\resizebox{!}{3cm}\
+     {{\epsfbox{Typewritter.eps}}}}
+\rput(-17.0,-5){\resizebox{7cm}{35.0cm}\
+     {{\epsfbox{bar.eps}}}}
+\rput(-16.3,3.5){\resizebox{!}{4.8cm}\
+     {{\epsfbox{portada-3-thumb.eps}}}}
+\rput(-16.3,-17.5){\resizebox{!}{0.9cm}\
+     {{\epsfbox{licencia.eps}}}}
+\end{verbatim}
+}
+\end{mexample}
+
+La primera de las imágenes es la de nuestra cabecera. Luego pintamos
+una barra con un ligero gradiente verde, a continuación la imagen de
+la portada y finalmente el logo de creative commons que aparece al
+final de la columna de la izquierda.
+
+
+Como veremos más adelante, todos los artículos utilizan este método
+para incluir la imagen que acompaña a la cabecera del mismo.
+
+Para terminar con esto, observad que hemos utilizado el comando
+{\tt rputs}. Para entender como funciona este comando y los que siguen
+a continuación es necesario comprender que existe una especie de
+``lapiz virtual'' que indica la posición actual en la página después
+de cada comando que añadimos.
+
+El comando {\tt rputs} nos permite precisamente mover ese ``lápiz'',
+pero de forma relativa a su posición actual. En el caso concreto de la
+página editorial, tras escribir el texto de cabecera, el ``lápiz'' se
+encuentra algo por debajo de ese texto. Esto es debido a que \LaTeX \hspace{1pt}
+intenta rellenar la página con los elementos disponibles (recordáis el
+{\tt parbox} de más arriba?).
+
+La experiencia nos ha enseñado y en este segundo número las imágenes
+de la editorial se han incluido de una forma más adecuada.
+
+\sectiontext{white}{black}{COLUMNAS LIBRES}
+
+Como decíamos, la página editorial está compuesta de dos columnas
+posicionadas de forma libre gracias al paquete {\em TextPos}. Veamos como lo
+hacemos:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+\begin{textblock}{30}(-1.5,-15)
+Primera columna
+\end{textblock}
+
+\begin{textblock}{20}(3.5,-13)
+La segunda Columna
+\end{textblock}
+\end{verbatim}
+}
+\end{mexample}
+
+Este fragmento de código crea una columna con el ancho determinado por
+el primer valor númerico, en la posición que se especifica a
+continuación. Podéis ver como una columna está junto a la otra, pero
+la segunda empieza un poco más abajo debido a que la cabecera está
+fuera de la columna.
+
+Como podéis comprobar en las fuentes del número 1, las columnas están
+compuestas de una forma peculiar. No hay ninguna razón para ello,
+simplemente pagamos la novatada :P. El primer parámetro de {\tt texblock}
+es el que realmente controla el ancho de la columna, sin embargo, este
+tamaño se vuelve a ajustar utilizando un entorno {\tt minipage} que
+realmente es redundante.
+
+Comparad la página de la editorial del número 1 con la de este número
+2 para comprobar las diferencias.
+
+
+\sectiontext{white}{black}{LOS ARTÍCULOS}
+
+El resto de la revista está compuesta por artículos, los cuales tienen
+todos la misma forma: Una cabecera, seguida del cuerpo del artículo
+separado en páginas.
+
+Una cabecera típica sería la siguiente:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+% Incluye imagen del artículo
+\rput(1,-3.0){\epsfbox{navaja.eps}}
+
+% ----------------------------------------------
+% Cabecera
+\begin{flushright}
+\msection{introcolor}{black}{0.18}{MALAS BESTIAS}
+
+\mtitle{8cm}{NetCat: La navaja suiza de la Red}
+
+\msubtitle{12cm}{Usos curiosos de esta herramienta}
+
+{\sf por Er Manitas}
+
+{\psset{linecolor=black,linestyle=dotted}\psline(-12,0)}
+\end{flushright}
+
+\vspace{2mm}
+% -------------------------------------------------
+\end{verbatim}
+}
+\end{mexample}
+
+Como podéis ver, lo primero que hacemos es poner la imagen que
+acompaña a la cabecera. Es importante que sea lo primero que se hace,
+puesto que la página se ``dibuja'' en el orden en el que aparece en
+fichero fuente. Así, si ponemos nuestra imagen como primer elemento de
+la página, cualquier texto o imagen que se dibuje posteriormente se
+sobreimpondrá a esta primera.
+
+
+Los artículos que contienen más de una imagen en su primera página,
+tendrán, obviamente, varias líneas de este tipo.
+
+
+\ebOpage{introcolor}{0.25}{MAKING OF}
+
+Tras la imagen, y justificado a la derecha, encontramos la cabecera
+propiamente dicha, compuesta por el nombre de la sección (que aparece
+en la parte superior derecha de la página), un título, un subtítulo,
+el nombre del autor y una línea de puntos que la separa del resto del
+artículo.
+
+\sectiontext{white}{black}{COMANDOS DE CABECERA}
+
+La línea de puntos superior la dibuja el comando {\tt msection}, el cual
+incluimos a continuación:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+\newcommand{\msection}[4]{
+{\begin{flushright}{
+{\psset{linecolor=black,linestyle=dotted}
+\psline(-17,0)}
+\colorbox{#1}{
+\begin{minipage}{#3\linewidth}
+\center
+  \textcolor{#2}{
+    \textsf{\textbf{#4}}}
+\end{minipage}
+}}\end{flushright}}
+
+\vspace{4mm}
+}
+\end{verbatim}
+}
+\end{mexample}
+
+La primera línea declara el comando de la forma habitual, nombre
+y número de parámetros (4 en este caso): color de fondo, color del texto, ancho del
+cuadro y texto.
+
+
+Tras iniciar un contexto {\tt flushright} para justificar a la derecha, nos
+encontramos un nuevo comando {\tt pstricks}, el cual se responsable de
+dibujar la línea de puntos superior. Observad una vez más como el orden de
+los comandos es importante. Primero dibujamos la línea y luego, por
+encima, el cuadro que contiene el nombre de la sección..
+
+El texto de la sección se incluye, en primer lugar en una {\tt colorbox},
+para poder cambiar el color de fondo, y posteriormente en un contexto
+minipage, para permitir el control del tamaño de la caja y el manejo
+de textos largos.
+
+\begin{entradilla}
+{\em ``Se han definido varios comandos para {\color{introcolor}facilitar la creación de cabeceras}''}
+\end{entradilla}
+
+
+Los comandos mtitle y msubtitle, simplemente nos permiten cambiar el
+tamaño y color del título y el subtítulo respectivamente.
+
+\sectiontext{white}{black}{COMPONIENDO EL ARTÍCULO}
+
+Preparar el cuerpo del artículo es lo que resulta más pesado, puesto
+que es necesario partirlo en páginas de forma manual por dos razones fundamentales:
+
+\begin{itemize}
+\item la primera es que queremos insertar el título de la sección en cada
+  página.
+\item La segunda es para tener control sobre el lugar en el que aparecen
+  las figuras que se posicionan de forma especial (con {\tt pstricks}).
+\end{itemize}
+
+Si alguien conoce una forma mejor de hacerlo, estaríamos muy
+interesados en conocerla :).
+
+\begin{entradilla}
+{\em ``El proceso de composición del artículo es manual. {\color{introcolor}Alguna idea?}''}
+\end{entradilla}
+
+El cuerpo principal de cada página de un artículo se incluye en un
+contexto {\tt multicols}, especificando que queremos utilizar dos
+columnas. Por cada página es necesario terminar el contexto, insertar
+el texto de la sección en la parte superior de la página e iniciar un
+nuevo contexto {\tt multicols}.
+
+Para hacer esto un poco más llevadero hemos incluido algunos comandos
+que nos hacen la vida más fácil.
+
+\begin{itemize}
+\item Si la siguiente página del artículo no contiene ninguna figura
+  especial, usaremos el comando: {\tt ebOpage\{color, tamaño, seccion\}}
+
+  Este comando termina el contexto {\tt multicols}, inserta la cabecera de
+  sección e inicia el nuevo contexto {\tt multicols}.
+
+\item Si tenemos que insertar imágenes en la siguiente página del
+  artículo, utilizaremos los comandos {\tt eOpage} y {\tt bOpage \{color, tamaño,
+  seccion\}}.
+
+  Sí, {\tt ebOpage} simplemente incluye estos dos comandos de forma
+  consecutiva.
+\end{itemize}
+
+Dentro del contexto {\tt multicols} hay dos comandos de interés que usamos
+de vez en cuando para hacer filigranas.
+
+El primero es {\tt columnbreak}, que nos permite forzar que el texto que
+sigue a continuación pase a la siguiente columna. El segundo es
+{\tt raggedcolumns}, que indica al entorno {\tt multicols} que no ajuste el tamaño
+de las dos columnas para que sean iguales.
+
+\sectiontext{white}{black}{ABSTRACTS}
+
+Nos queda por comentar algunos de los elementos que aparecen en los
+distintos artículos, tales como los {\em abstracts} o introducciones, al
+principio de cada uno de ellos y los listados y cuadros que ciertos
+artículos incluyen.
+
+Los {\em abstracts} se incluyen dentro de una {\tt colorbox} que, a su
+vez, incluye un entorno {\tt minipage} en el que el primer carácter se re-escala
+utilizando un comando {\tt resizebox}. Es necesario incluir el texto
+en un entorno {\tt minipage} para poder ajustar la caja de color a la
+columna.
+
+Si comprobáis las fuentes, veréis
+que la mayoría de estas introducciones incluyen todos estos comandos
+al principio de cada artículo. 
+
+En el fichero {\tt portada.tex} se incluye un comando para generar estas
+introducciones en un solo paso. Veámoslo:
+
+\ebOpage{introcolor}{0.25}{MAKING OF}
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+% Crea el cuadro de introducción al principio 
+% de cada artículo
+\newcommand{\intro}[3]{
+\colorbox{#1}{
+  \begin{minipage}{.9\linewidth}
+    \vspace{2mm}
+    {{\resizebox{!}{1.0cm}{#2}}{#3}}
+  \vspace{1mm}
+  \end{minipage}
+}
+\vspace{4mm}
+}
+\end{verbatim}
+}
+\end{mexample}
+
+Como se puede observar en este fragmento de código, el comando espera
+recibir tres parámetros. El primero es el color de fondo que se pasa a
+{\tt colorbox} como \#1. El segundo parámetro es el primer carácter de la
+introducción, el cual, aparece con un tamaño mayor. Finalmente, como
+tercer parámetro pasaremos el resto del texto de la introducción.
+
+Podéis ver como utilizar este comando, por ejemplo, en el fichero
+{\tt distros.tex} en las fuentes del número 1 de nuestra revista o en
+cualquiera de los artículos del número 2.
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+\intro{introcolor}{Q}{ué te parecería  ...}
+\end{verbatim}
+}
+\end{mexample}
+
+
+\sectiontext{white}{black}{LISTADOS}
+
+Varios artículos incluyen código fuente en algún lenguaje de
+programación. En general, este código lo podemos
+introducir dentro de un entorno {\tt verbatim} que conserve el indentado y
+los caracteres especiales que suelen aparecer en los programas.
+
+
+
+Sin embargo, siempre que sea posible, utilizamos el paquete {\em listing},
+que nos proporciona un entorno {\tt lstlisting} para hacer un
+{\em ``pretty-printing''} de un fragmento de código. 
+
+\begin{entradilla}
+{\em ``{\color{introcolor}El paquete listing} nos permite formatear
+  código fuente.''}
+\end{entradilla}
+
+El paquete {\em listings} ofrece un ámplio abanico de posibilidades y, sobre
+todo, es capaz de manejar un gran número de lenguajes de
+programación. Veámos un par de ejemplos extraídos del fichero
+{\tt murapido.tex}.
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+\lstset{language=C,frame=tb,framesep=5pt,
+        basicstyle=\small}   
+\begin{lstlisting}
+#include <stdio.h>
+
+int main() {
+  char buffer[1024];
+  gets (buffer);
+  printf ("%s", buffer);
+}
+\end{lstlisting}
+\end{verbatim}
+}
+\end{mexample}
+
+Como podéis observar, el código simplemente se introduce en un entorno
+{\tt lstlistings} sin más. Es el comando {\tt lstset} el que nos permite
+configurar como se visualizará nuestro programa en el documento final.
+
+En este ejemplo, el comando {\tt lstset}, configura el entorno para:
+
+\begin{itemize}
+\item Utilizar el lenguaje C.
+\item Dibujar las líneas de arriba ([t]op) y de abajo ([b]ottom) del cuadro.
+\item Introducir una separación de 5 puntos entre el cuadro y el texto.
+\item Utilizar el tamaño de fuente {\tt small} para el texto dentro del entorno.
+\end{itemize}
+
+\begin{entradilla}
+{\em ``Tanto la portada como el sumario son imágenes
+  {\color{introcolor}generadas con GIMP }''}
+\end{entradilla}
+
+Este paquete dispone de una documentación bastante buena en la que se
+describen todas las opciones que proporciona. Una de las más
+interesantes es la flexibilidad que proporciona para la numeración de
+líneas. Eso ya lo dejamos para que los más curiosos se entretengan.
+
+\sectiontext{white}{black}{PORTADA Y SUMARIO}
+
+Los últimos elementos que nos quedan por comentar son la portada y el
+sumario de la revista. En general, estos dos elementos deben resultar
+atractivos a la vista y su composición utilizando \LaTeX, aunque
+posible, requiere demasiado trabajo.
+
+Por esa razón, ambos elementos se generan como imágenes creadas con la
+herramienta {\em The GIMP} que es una auténtica maravilla.
+
+\sectiontext{white}{black}{ZONA GEEK}
+
+Sí, hasta para el proceso de la generación del pdf final de la revista
+podemos ser un poco ``raritos''. Lo primero que podéis observar es que
+tanto el pdf como el postscript finales de la revista se generan con
+la herramienta {\tt make}... la misma que utilizamos para compilar
+nuestros programas.
+
+Lo segundo es que, la fe de erratas o incluso, la traducción de la
+revista a otros idiomas se pueden distribuir como parches :). Sí
+parches como los que aplicamos al kernel o a cualquier paquete de
+software... Mola!. 
+
+Por cierto, que ya está disponible, en nuestra web, el parche con la Fé de Erratas del
+número 1 ;).
+
+\sectiontext{white}{black}{ESTO ES TODO}
+
+Bueno, más o menos esto es todo lo que hay que saber para modificar
+``Occam's Razor'' o para crear tu propia publicación LaTeX. Como habréis
+comprobado el proceso es bastante sencillo, pero un poco tedioso y
+tiene sus cosas buenas y sus cosas no tan buenas.
+
+Finalmente, nos gustaría saber de cualquier proyecto que llevéis a
+cabo utilizando lo que aquí hemos contado. Ya sabéis, ``Uno se alegra
+de ser útil'' ;)
+
+
+\end{multicols}
+
+\clearpage
+\pagebreak

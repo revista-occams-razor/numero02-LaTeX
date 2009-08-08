@@ -1,0 +1,210 @@
+% Este fichero es parte del Número 2 de la Revista Occam's Razor
+% Revista Occam's Razor Número 2
+%
+% (c) 2007, Occam's Razor. Contenido disponible bajo licencia 
+% Reconocimiento-No comercial-Compartir bajo la misma licencia 2.5 España 
+% de Creative Commons. 
+%
+% Para ver una copia de esta licencia, visite 
+% http://creativecommons.org/licenses/by-nc-sa/2.5/es/ o envie una
+% carta a Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+% 
+
+% Seccion Ratas de Biblioteca
+%
+% Incluye imagen del artículo
+
+
+\rput(2,-2.5){\resizebox{!}{4.0cm}{{\epsfbox{images/lectores.eps}}}}
+
+% -------------------------------------------------
+% Cabecera
+\begin{flushright}
+\msection{introcolor}{black}{0.35}{RINCÓN DE LOS LECTORES}
+
+\mtitle{7cm}{El Rincón de los lectores}
+
+\msubtitle{10cm}{Vuestros comentarios, sugerencias,...}
+
+{\sf por The Occam's Razor Team}
+
+{\psset{linecolor=black,linestyle=dotted}\psline(-12,0)}
+\end{flushright}
+
+\vspace{2mm}
+% -------------------------------------------------
+
+\begin{multicols}{2}
+
+
+\sectiontext{white}{black}{NETCAT}
+
+{\bf enviado por Vilius}
+\vspace{2mm}
+\hrule
+\vspace{2mm}
+
+\medskip
+
+{\em Al leer el artículo del netcat, recordé un problema que resolví una vez con
+netcat y que tiene mucho que ver con la solución dada en ``Como en las
+pelis''.
+
+Aquí, proponéis la creación de un puente, que en realidad es unidireccional.
+
+Supongamos el caso que tenemos una máquina, a la que sólo se puede acceder a
+través del puerto 8000, y que tiene un ssh instalado en el puerto 22, y que
+no tenemos privilegios para cambiarlo. ¿Cómo podemos con el netcat conseguir
+acceder? La solución pasa por crear un puente bidireccional:
+
+Mi propuesta para la creación de un puente bidireccional es la siguiente:
+
+\begin{itemize}
+\item Creamos el fichero puente.sh
+
+\begin{verbatim}
+#!/bin/bash
+nc localhost 22 -q 1
+\end{verbatim}
+
+
+\item En línea de comandos ejecutamos:
+
+\begin{verbatim}
+nc -l -p 8000 -e ./puente.sh
+\end{verbatim}
+
+\end{itemize}
+
+Con esto conseguimos que cuando conectemos al puerto 8000, se redirija lo
+que llegue al puerto 22 y a su vez, lo que se responda desde el puerto 22,
+llegue a quien hizo la petición.
+
+Podemos hacer ahora ssh localhost -p 8000 y podemos conectar al ssh.
+
+Volviendo a la sección como en la pelis, ahora podriamos ejecutar esto en
+varias máquinas, conectándolas entre sí, y ya tendríamos una conexión
+bidireccional de princpio a fin, dando saltos a través de nodos intermedios.
+}
+
+--
+
+Estupendo Vilius. Una aplicación muy interesante que enlaza con la
+mala bestia de este número: ``ssh''.
+
+
+\vspace{4mm}
+
+\sectiontext{white}{black}{OPCIÓN PERDIDA}
+
+{\bf enviado por SLaYeR}
+\vspace{2mm}
+\hrule
+\vspace{2mm}
+
+SLaYeR ma nos apunta muy acertadamente
+
+\medskip
+
+{\em
+En el articulo de netcat, donde hacéis referencia a la posibilidad de
+ejecutar un programa con la opción -c, según mi netcat os equivocáis, la
+opción es -e.
+Comprobad que no sea una errata.
+}
+
+--
+
+SLaYeR, como bien dices, las últimas versiones de netcat ya no
+incorporan esta opción, si bien sigue estando disponible en las
+versiones del programa incluidas en varias distribuciones.
+
+Para todos aquellos que queráis saber como implementar la famosa
+opción -c, no os podéis perder el artículo de la sección ``Mú Rápido''
+de este mismo número.
+
+
+\sectiontext{white}{black}{CON UN PAR DE LÍNEAS}
+
+{\bf enviado por Jesús Aneiros}
+\vspace{2mm}
+\hrule
+\vspace{2mm}
+
+{\em Leo en la sección del asunto el siguiente ejemplo el cual gasta un
+proceso por gusto y es merecedora del premio UUOC:
+
+http://partmaps.org/era/unix/award.html
+
+\begin{verbatim}
+cat mi_fichero | awk -e '{print \$1,\$2}'
+\end{verbatim}
+
+Como se ve el cat sobra si se pone el fichero como argumento de awk.
+
+Pero es que el awk tiene un error porque hay que imprimir el valor de la
+columna 3 no el de la 2. Tampoco es correcto escapar los \$ pues ya
+usaron apostrofes y finalmente la opción -e no hace falta.
+
+Por otro lado el ejemplo de Perl como one-liner deja mucho que desear
+pues se pudo escribir más corto usando las opciones del lenguaje:
+
+\begin{verbatim}
+perl -ane 'print "$F[0] $F[2]\n"' mi_fichero
+\end{verbatim}
+}
+
+--
+
+Estupendo Jesús. La errata de awk ya la incluimos en la web, pero la
+reproducimos aquí pos si algún lector no la pudo ver.
+
+\vspace{4mm}
+
+\sectiontext{white}{black}{VUESTRO APOYO}
+\vspace{2mm}
+\hrule
+\vspace{2mm}
+
+
+Desde aquí queremos agradeceros a todos, los mensajes de felicitación
+y ánimo que nos habéis enviado a lo largo de estos meses. Esperamos
+que este número os guste tanto como el primero.
+
+
+\vspace{6mm}
+
+\colorbox{excolor}{
+\begin{minipage}{.9\linewidth}
+{\bf\sf\Large ENVIADNOS...}
+\vspace{1mm}
+\hrule
+\bigskip
+
+Vuestros comentarios, sugerencias, ideas, críticas (constructivas
+claro), correcciones, soluciones, disoluciones o cualquier cosa que se
+os ocurra... a:
+
+\bigskip
+
+{\tt occams-razor@uvigo.es}
+
+\bigskip
+
+{\sf{\textbf LOS ESPERAMOS!!!!}}
+
+\bigskip
+
+\end{minipage}
+}
+
+
+
+
+
+\raggedcolumns
+\pagebreak
+
+\end{multicols}
+
+\pagebreak

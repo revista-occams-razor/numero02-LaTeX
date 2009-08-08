@@ -1,0 +1,414 @@
+% Este fichero es parte del Número 2 de la Revista Occam's Razor
+% Revista Occam's Razor Número 2
+%
+% (c) 2007, Occam's Razor
+% Contenido disponible bajo licencia 
+% Reconocimiento-No comercial-Compartir bajo la misma licencia 2.5 España 
+% de Creative Commons. 
+%
+% Para ver una copia de esta licencia, visite 
+% http://creativecommons.org/licenses/by-nc-sa/2.5/es/ o envie una
+% carta a Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+% 
+
+% Seccion Tecnología
+%
+% Incluye imagen del artículo
+
+
+\rput(1.5,-2.0){\resizebox{!}{5cm}{{\epsfbox{images/fingerprint-1.eps}}}}
+
+% -------------------------------------------------
+% Cabecera
+\begin{flushright}
+\msection{introcolor}{black}{0.25}{TECNOLOGÍA}
+
+\mtitle{7cm}{La Dactiloscopia Computerizada}
+
+\msubtitle{10cm}{Aprendemos como trabajan los CSIs}
+
+{\sf por Fernando Martín Rodríguez}
+
+
+
+{\psset{linecolor=black,linestyle=dotted}\psline(-12,0)}
+\end{flushright}
+
+\vspace{2mm}
+% -------------------------------------------------
+
+\begin{multicols}{2}
+
+\intro{introcolor}{É}{ste texto pretende ser el primero de una serie
+  de artículos sobre biometría. Lo malo de las series (igual que las
+  revistas) es que es fácil empezar pero luego hay que seguir (por lo
+  menos el que Occam's vaya por el segundo número parece buena
+  señal). La biometría es el reconocimiento de personas a través de
+  rasgos biométricos (características físicas o comportamientos). Por
+  ejemplo, son rasgos biométricos (físicos): la cara, las huellas
+  dactilares, la forma de la mano, el ADN... otros rasgos biométricos
+  (comportamientos) son: la voz, la firma, los gestos, la forma de
+  andar... 
+}
+
+Los humanos nos reconocemos unos a otros usando (casi inconscientemente) una combinación de todos esos rasgos. Aquí la parte que nos interesa (la tecnológica) es poder hacer un reconocimiento automático, computerizado. El tema de hoy (me emocioné tanto con la introducción que casi me olvido) es el tratamiento de huellas dactilares o dactiloscopia (palabra procedente del griego DAKTILOS = dedos y SKOPIEN = observa). Los primeros estudios serios sobre esta ciencia datan de principios del siglo XX, en aquel momento todo se hacía de forma manual. Lo que pretende enseñarnos este artículo es un poco de los sistemas informatizados que se usan hoy día.
+
+\sectiontext{white}{black}{INTRODUCCIÓN}
+
+Actualmente, debido a la creciente preocupación por la seguridad
+pública, vivimos una época de gran interés en la investigación en
+sistemas biométricos. Como definición, un sistema biométrico es aquél
+que realiza identificación o verificación de la identidad de un
+individuo utilizando algún rasgo físico medible (cara, huella
+dactilar, forma de la mano) o algún patrón de comportamiento personal
+(características de la voz o de la escritura, firma ...). Ojo,
+identificación es diferente de verificación (\textbf {indentificación}: no sé
+quién es el individuo, tengo una o varias muestras y lo busco en una
+base de datos; \textbf {verificación}: de alguna manera sé quién es o, por lo
+menos, lo sospecho y uso medidas biométricas para comprobarlo). La
+verificación suele ser un problema más simple y de solución más rápida
+(porque no hay que buscar en una base de datos sólo medir el parecido
+entre diferentes muestras). Los rasgos usados por sistemas biométricos
+deben tener las siguientes características: 
+
+\begin{itemize}
+
+\item Universalidad: todas las personas deben poseerlos.
+\item Unicidad: no debe haber dos personas con los rasgos seleccionados iguales.
+\item Permanencia: deben ser invariantes con el tiempo.
+\item Cuantificación: admiten medidas cuantitativas.
+
+\end{itemize}
+
+Las huellas dactilares son el rasgo biométrico que mejor cumple todas
+estas características. Realmente, son un buen argumento para quienes
+creen que fuimos creados por un ser superior (parece que Dios nos ha
+dotado de un ``código de barras''). Se forman dentro del útero
+materno. Son diferentes incluso en los gemelos idénticos (que tienen
+el mismo ADN). Además, permanecen inalterables durante toda la
+vida. Incluso cuando existen pequeñas heridas, si la piel se regenera
+sin cicatrices, la nueva huella es igual a la anterior. 
+
+Las huellas están formadas por las llamadas ``crestas papilares'' que
+son relieves de la piel. El dibujo de las crestas (y de los surcos que
+hay entre ellas) es lo que llamamos huella dactilar. Debido al sudor,
+cualquier superificie que tocamos queda ``marcada'' con nuestras
+huellas. Sin embargo, en las superficies muy curvas es muy difícil
+obtener huellas claras, la superficie ideal para cualquier
+dactiloscopista es un vidrio plano. Las huellas de una persona se
+obtenían (y se siguen obteniendo) impregnando las yemas de los dedos
+en tinta y marcándolas sobre papel. Estos dibujos se llaman
+dactilogramas y podéis fabricar uno fácilmente con un folio y un
+tintero de cruñar (ojo, lavar las manos después con alcohol). Hoy en
+día existen lectores electrónicos de diferentes tecnologías
+(capacitivos, RF, ópticos, térmicos ...) [1,2]. 
+
+El procesado automático de huellas dactilares con fines legales
+comenzó en los años 70 [3]. Esta referencia que os paso es un informe
+realizado por el NIST (National Institute of Standards and Technology)
+que es un centro de I+D del ministerio de comercio
+norteamericano. Esta gente se dedica a hacer informes sobre temas que
+puedan interesar a las empresas de su país y tienen la buena costumbre
+de hacerlos públicos a todo el mundo mundial (bueno, por algunos
+cobran). Entre las cosas que distribuyen gratuitamente se encuentra el
+NFIS (NIST Fingerprint Image Software) que es un CD que contiene
+software dactiloscópico (aplicaciones de compresión y de clasificación
+de imágenes de huellas). 
+
+\ebOpage{introcolor}{0.25}{TECNOLOGÍA}
+
+Cuando yo lo conseguí había que enviarles un
+correo diciendo quién eres, dónde vives y para qué lo quieres y te lo
+enviaban por correo postal (sí, sí, son yankees y no quieren pasárselo
+a uno de Al Qaeda). Para completar el currículum de esta gente, ellos
+desarrollaron el software dactiloscópico que usa el FBI. 
+
+
+
+
+Y, como
+podéis imaginar, EL QUE DAN DE GRATIS NO ES LA MISMA VERSIÓN. Sin
+embargo, está bastante bien y además es muy robusto. Está pensado para
+poder trabajar con imágenes de muy baja calidad como los dactilogramas
+antiguos escaneados (imaginaos una ficha en papel de la policía de
+Wisconsin del año 1970 ...). 
+
+Como la ``Dactiloscopia'' se usa en ámbitos policiales y judiciales
+(esto es: como alguien puede ir o no a la cárcel dependiendo del
+resultado del reconocimiento), se han desarrollado algoritmos muy
+estrictos para el tratamiento de huellas. Pensados, en principio, para
+ser aplicados manualmente por expertos humanos llamados
+dactiloscopistas (que suelen ser policías formados en la materia). La
+mayoría de los sistemas dactiloscópicos computerizados están basados
+en imitar estos métodos. En los siguientes apartados, veremos dos
+tipos de métodos pensados para resolver un problema de identificación
+en dos fases. Esto es: tenemos una huella y queremos buscarla en una
+base de datos de fichados. En este tipo de identificaciones, el número
+de posibles individuos suele ser muy grande (del orden de miles) y
+está permitido un tiempo de identificación largo (varias horas). 
+
+\medskip
+
+% CUADRO
+\colorbox{introcolor}{
+\begin{minipage}{0.9\linewidth}
+{\small
+
+\bigskip
+
+No os pongáis a temblar... las huellas del DNI no pueden usarse para
+buscar a un sospechoso así por las buenas. Sólo se usan si hay orden
+judicial y eso ocurre cuando hay otros indicios y se quiere confirmar
+la identidad de alguien (ejemplo típico de uso es la identificación de
+un cadáver irreconocible). Por otra parte, la base de datos del DNI es
+muy difícil de usar: primero, porque es muy grande y, segundo, porque
+sólo tiene la huella del índice derecho. Las huellas de los diez dedos
+son independientes y nunca vamos a saber cuál es la huella que
+encontramos en el lugar de autos (o en un cuerpo mutilado), Sí, sí,
+cuando la poli ficha a alguien le toman las diez huellas.
+
+\medskip
+}
+\end{minipage}
+}
+
+\vspace{1cm}
+
+% CUADRO
+
+\columnbreak
+
+\sectiontext{white}{black}{PRECLASIFICACIÓN}
+
+La preclasificación se usa para reducir el número de comparaciones
+exhaustivas a realizar. Se trata de que tenemos una huella y diez mil
+``fichados'' (por ejemplo). Si podemos dividir todas las huellas del
+mundo en N tipos, podremos eliminar muchas comparaciones de golpe (si
+la huella que tengo es del tipo 1, elimino todas las demás del
+conjunto de posibles). Las huellas se suelen clasificar como
+pertenecientes a una de 5 clases disjuntas (N=5). Las clases que se
+definen para esta preclasificación siempre se basan en los puntos
+singulares de las huellas (figura 1). En la figura vemos los dos
+puntos singulares más importantes de toda huella: el núcleo (o core) y
+el delta. El núcleo puede definirse como el punto de máxima curvatura
+de la cresta más interna mientras que el delta es el centro de un
+conjunto de crestas inferiores al núcleo que dibujan varios triángulos
+concéntricos. Las preclasificaciones se basan en el número de deltas
+(0, 1 ó 2) y en su posición relativa respecto al núcleo. 
+
+Las normas judiciales de cada país definen el llamado ``Sistema
+Dactiloscópico'' y éste define las clases de la preclasificación. Por
+ejemplo, el sistema norteamericano (clasificación de Henry) define las
+siguientes clases: arco (arch), arco de carpa (tented arch), lazo
+izquierdo (left loop), lazo derecho (right loop) y anillo de cresta
+(whorl). Un ejemplo de cada una aparece en la figura 2. De hecho,
+existe también la clase ``scar'' (ciactriz) que define huellas
+parcialmente borradas por cicatrices permanentes. 
+
+
+La dactiloscopia española define clases muy similares aunque
+ligeramente diferentes. Una huella según el sistema español
+(Clasificación de Federico Olóriz basada en trabajos de Henry, Galton
+y Vucetich estándar en España, Bolivia, Colombia y Perú) se puede
+clasificar como: adelta (no tiene deltas, se trata de un arco o arco
+de carpa), dextrodelta (delta a la derecha y lazo central a la
+izquierda: lazo izquierdo), sinistrodelta (delta a la izquierda, lazo
+a la derecha: lazo derecho) y bidelta (dos deltas a ambos lados, en
+estos casos el núcleo hace un remolino: anillo de cresta). Fijaos que
+hemos puesto de manifiesto los parecidos y diferencias entre ambos
+sistemas. 
+
+
+
+\end{multicols}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[height=5.0cm, keepaspectratio]{images/Fig1a.eps}
+\includegraphics[height=5.0cm, keepaspectratio]{images/Fig1b.eps}
+
+{\footnotesize\textbf{Fig1. Izquierda: núcelo y delta de una huella. Derecha: división en regiones utilizando los puntos singulares.}}
+\end{figure}
+
+\clearpage
+\pagebreak
+
+
+\bOpage{introcolor}{0.25}{TECNOLOGÍA}
+
+\end{multicols}
+\rput(8.5,-0.2){\resizebox{13cm}{!}{{\epsfbox{images/Fig2.eps}}}}
+
+\vspace{2.0cm}
+\begin{center}
+{\footnotesize\textbf{Fig 2. Tipos de huellas (dactiloscopia de Henry, EE.UU. y Reino Unido}}
+\end{center}
+
+
+
+\begin{multicols}{2}
+
+Actualmente, existen sistemas automáticos que clasifican las huellas
+en este tipo de clases. Por ejemplo, el PCASYS [3] es un software
+libre (parte del NFIS) que realiza la clasificación de Henry. El
+método de PCASYS (explicado muy brevemente) sería así (ojo, ahora dejo
+por un momento el estilo divulgativo y me vuelvo más técnico, esto ya
+es procesado de imagen): 
+
+% Información Técnica
+\begin{itemize}
+\item Dividir la imagen en subregiones. En cada una se extraen datos
+  de la dirección predominante (que ángulo forman las crestas). 
+\item Con todos esos datos (números) se forma un vector (vector de
+  características, que es como se le llama a los conjuntos de
+  características numéricas que usan todos los clasificadores
+  automáticos). 
+\item El vector se procesa con una red neuronal. Las redes neuronales
+  [4] ``aprenden'' a reconocer cuando un vector de características
+  corresponde a la clase 1, a la 2... o a ninguna. Para ello, se hacen
+  unas operaciones matemáticas que imitan el funcionamiento del
+  sistema nervioso de los humanos y animales. Sí, sí, es uno de los
+  inventos más interesantes que conozco... El libro de la referencia 4
+  es muy, muy bueno. 
+\end{itemize}
+
+% Final Información Técnica
+
+
+
+\sectiontext{white}{black}{COMPARACIÓN DE HUELLAS (MINUCIAS)}
+
+El método estándar (y el marcado por la legislación en todo el mundo)
+para la comparación exhaustiva de huellas es el de la extracción de
+minucias. Las minucias son los puntos singulares encontrados en el
+trazo de las crestas (puntos donde se bifurcan, terminan...). En una
+huella puede haber más de 100 minucias. La ley en España (y en muchos
+otros países) establece que dos huellas con 12 o más minucias
+coincidentes no pueden ser diferentes (las minucias deben coincidir en
+tipo, posición respecto al núcleo y dirección o ángulo respecto a la
+horizontal). Nótese que basta con encontrar 12 coincidencias, da igual
+el resto de minucias (esta regla permite comparar con trozos de
+huellas y/o con huellas de baja calidad). 
+
+Los sistemas que detectan automáticamente minucias se basan en (de
+nuevo hablo de procesado de imagen): 
+
+% Más información técnica
+\begin{itemize}
+\item Dividir la huella en trozos y en cada uno, decidir que puntos
+  son negros y cuáles blancos. Eso es una operación llamada binarizar
+  y lo hacen muchos sistemas de procesado de imagen como los OCR's. En
+  la imagen de entrada hay 256 niveles de gris y hay que dejarlo 
+  en 2. En los casos más fáciles llega con poner un umbral pero éste
+  es un caso muy difícil y el umbral se calcula en cada punto según
+  las crestas que lo rodean. Fijaos que estamos dediciendo, ¿dónde
+  están las crestas y donde los valles o surcos? A lo mejor para
+  preclasificar, daba igual equivocarse en un par de sitios pero aquí
+  ya no da tan igual. 
+
+\item Después todas las líneas que son más gruesas que un píxel se
+  adelgazan (thinning) para poder seguirlas (un buen libro de
+  procesado de imagen que explica la binarización, el thinning y mucho
+  más es [5]) de las crestas. 
+\item Siguiendo las líneas (las crestas) se localizan y clasifican las
+  minucias. 
+\end{itemize}
+% Fin bloque información técnica
+
+MINDTCT [3] es una aplicación libre que realiza esta labor (como no,
+parte del NFIS). 
+
+\sectiontext{white}{black}{OTROS SISTEMAS}
+
+Existen otros muchos algoritmos para comparar huellas pero sólo los
+que explicamos ahora se pueden usar en un juicio. Estos nuevos métodos
+suelen ser más simples y más rápidos y su aplicación más conocida es
+en sistemas de control de accesos (control de acceso físico a un
+recinto o de acceso a un sistema como un ordenador). En estos sistemas
+suele haber un lector electrónico que no tiene tantos problemas como
+los dactilogramas lo que también aligera el procesado (en concreto no
+se suelen usar métodos de binarización tan sofisiticados). 
+
+\myfig{0}{images/Fig3.eps}{1.0}
+\nncaption{Fig 3. Tipos de minucias (izquierda). Las fiables para la classificación son sólo las terminaciones y bifurcaciones (las otras, a veces, se llaman ``minucias falsas''). Derecha, ejemplo de dos tipos: bifurcación (cuadrado) y fin de cresta (círculo).}
+
+\ebOpage{introcolor}{0.25}{TECNOLOGÍA}
+
+Si queréis conocer en detalle un sistema de este tipo podéis leer este
+breve artículo (eso sí, es un artículo más formal que los que podéis
+encontrar en esta revista): 
+
+\begin{mexample}
+{\small
+\verb!http://www.gpi.tsc.uvigo.es/pub/papers/said.pdf!
+}
+\end{mexample}
+
+Sí, sí, no he resistido la tentación de hacerme propaganda a mí
+mismo... además, así sabéis cómo se me ha dado por aprender estas
+cosas (el artículo es un resumen del Proyecto Fin de Carrera del
+alumno Fco. Javier Suárez López titulado ``Sistema Automático de
+Identificación Dactilar''). 
+
+Por si sois algo vagos y no queréis leer el ladrillo ese lleno de
+fórmulas os puedo explicar un poco de qué va este método, muy parecido
+a otros que se usan en este tipo de sistemas (de nuevo marco el
+párrafo como texto de procesado de imagen): 
+
+% Más técnica
+\begin{itemize}
+\item Primero se busca el centro de la huella. Para eso hay que
+  recorrer las crestas midiendo gradientes y curvaturas. 
+\item Una vez encontrado se trata de poner ``encima'' una malla
+  circular que define unos puntos de interés. En cada punto se mide la
+  ``textura'' de la imagen y con todas las texturas se crea un vector
+  de características. ¿Qué es la textura de la imagen? digamos que es
+  la descripción de un ``entorno'' del punto en el que estamos. Una
+  camisa de cuadros es una textura diferente a una de rayas (y las
+  rayas pueden ser horizontales, verticales, en ángulo.... sí, sí,
+  como dideñador de moda no iba a tener éxito). La textura se mide de
+  diferentes maneras (el tema es aplicar alguna operación que dé
+  resultados diferentes en texturas diferentes). Nosotros aplicamos el
+  filtro Gabor [6] (una convolución 2D) que es muy utilizado para
+  describir texturas. 
+\end{itemize}
+
+% Fin técnica
+
+Métodos muy parecidos a éste son los que se usan para reconocer el
+dibujo del iris, pero ese debería ser otro artículo de la serie...
+
+\sectiontext{white}{black}{REFERENCIAS}
+
+[1] http://www.atmel.com.
+
+[2] P. Olguín, ``Sensores Biométricos'', Revista Electrónica de la
+Escuela de Ingeniería Eléctrica (Universidad Central de Venezuela,
+http://www.ucv.ve), nº 6, 1999.
+
+[3] M.D. Garris et al, ``NIST Fingerprint Image Software'' NISTIR 6813
+(National Institute of Standards and Technology - Internal Report,
+http://www.nist.gov), 2001. 
+
+[4] S. Haykin, ``Neural Networks. A Comprehensive Foundation'',
+Prentice Hall, 1999.
+
+[5] A.K. Jain, ``Fundamentals of Digital Image Processing'',
+Ed. Prentice Hall, 1989.
+
+[6] L. Hong et al, ``Fingerprint Image Enhancement: Algorithm and
+Performance Evaluation'', IEEE Trans. PAMI, 20(8), 777-789, 1998. 
+
+
+\end{multicols}
+
+\vspace{4mm}
+
+
+
+\rput(8,-7.0){\resizebox{!}{16cm}{{\epsfbox{images/promo-1.eps}}}}
+
+{\psset{linecolor=black,linestyle=dotted,linewidth=2pt}\psline(0,1)(17,1)}
+
+\clearpage
+\pagebreak

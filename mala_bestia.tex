@@ -1,0 +1,764 @@
+% Este fichero es parte del Número 2 de la Revista Occam's Razor
+% Revista Occam's Razor Número 2
+%
+% (c) 2007, Occam's Razor
+% Contenido disponible bajo licencia 
+% Reconocimiento-No comercial-Compartir bajo la misma licencia 2.5 España 
+% de Creative Commons. 
+%
+% Para ver una copia de esta licencia, visite 
+% http://creativecommons.org/licenses/by-nc-sa/2.5/es/ o envie una
+% carta a Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+% 
+
+% Seccion Mala Bestia
+%
+% Incluye imagen del artículo
+
+
+\rput(1,-1.8){\resizebox{!}{7cm}{{\epsfbox{images/rj45.eps}}}}
+
+% -------------------------------------------------
+% Cabecera
+\begin{flushright}
+\msection{introcolor}{black}{0.25}{MALA BESTIA}
+
+\mtitle{7cm}{Conexiones seguras con SSH}
+
+\msubtitle{6cm}{... más allá de netcat}
+
+{\sf por Ssh el Silencioso }
+
+
+
+{\psset{linecolor=black,linestyle=dotted}\psline(-12,0)}
+\end{flushright}
+
+\vspace{2mm}
+% -------------------------------------------------
+
+\begin{multicols}{2}
+
+\intro{introcolor}{Y}{a hemos visto como hacer muchas cosas a través de la red utilizando
+Netcat. Sin embargo, aunque como vimos, netcat tiene muchas ventajas,
+también tiene algunos inconvenientes, como por ejemplo, que los datos
+viajan por la red como texto plano. En una pequeña red local casera
+esto no es un gran problema, pero si nuestros datos van a viajar por
+internet o a través de una red wifi, hay muchos ojos acechando.
+}
+
+Para estos casos es mejor utilizar ssh (Secure SHell). Como veremos en
+breve, podremos hacer todo lo que hacíamos con nuestro querido Netcat
+con la ventaja de que los datos viajarán por la red cifrados. Como
+contrapartida, el uso de ssh no es tan sencillo y ssh no es tan
+pequeño :).
+
+A continuación exploraremos los usos comunes de esta ``mala bestia'', y
+aquellos menos conocidos.
+
+\sectiontext{white}{black}{ACCESO REMOTO}
+
+El uso más común de SSH, como su propio nombre indica, es permitir un
+acceso shell seguro. Desde este punto de vista lo podemos considerar
+un sustituto, más que recomendable, de telnet o rlogin.
+
+Este uso no tiene ningún secreto, simplemente indicamos a nuestro
+cliente de ssh el nombre de usuario en la máquina a la que nos
+queremos conectar, seguido de una arroba y el nombre de esa
+máquina. Algo tal que así:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ ssh usuario@maquina_remota
+Password:
+usuario@maquina_remota$ 
+\end{verbatim}
+}
+\end{mexample}
+
+Simplemente comentaros que si no se proporciona nombre de usuario, ssh
+intentará conectarse con el nombre del usuario local, el cual debe
+existir en la máquina remota.
+
+\begin{entradilla}
+{\em La principal aplicación de ssh es el {\color{introcolor}{acceso shell seguro}}}
+\end{entradilla}
+
+
+Hasta aquí nada del otro mundo, pero que os parece si os decimos que
+además podéis ejecutar comandos de forma remota?. Esto es tan fácil
+como añadir lo que se desea ejecutar a continuación del comando
+anterior.
+
+Por ejemplo, supongamos que tenemos una máquina en nuestra red
+conectada a nuestro equipo de música con un montón de ``emepetreses'' en
+el directorio ``/home/mp3''.
+
+Desde cualquier otra máquina de nuestra red, y sin levantarnos de
+nuestra cómoda silla, podemos ejecutar:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ ssh usuario@jukebox 'mpg123 \
+> /home/mp3/*mp3'
+Password:
+occam@razor$
+\end{verbatim}
+}
+\end{mexample}
+
+Evidentemente, el programa mpg123 debe estar instalado en la máquina
+remota.
+
+\sectiontext{white}{black}{ROMPIENDO CLAVES}
+
+En nuestros ejemplos anteriores, hemos ejecutado nuestros comandos en
+la máquina remota, pero, ssh redirecciona la entrada y salida estándar,
+lo que nos permite manipular la salida del comando en nuestra máquina
+local, o pasarle datos a la aplicación remota.
+
+Supongamos que vamos a utilizar varias máquinas en una red para romper
+alguna clave con un método de fuerza bruta apoyado en diccionarios. En este caso,
+tomaríamos nuestro diccionario y lo partiríamos en tantas partes como
+máquinas queremos ejecutar. Con cada una de estas partes,
+ejecutaríamos nuestro ''password cracker'' en las máquinas disponibles.
+
+Para no liar esto mucho, y para que tengáis alguna cosa que hacer, en
+lugar de un rompedor de claves vamos a ejecutar un comando absurdo que
+simplemente busca una cadena en el fichero que le pasamos. 
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ ssh maquina_potente \
+> "grep -i pepito" < lista_de_nombres.txt
+Password:
+Pepito Grillo
+Pepito de los Palotes
+occams@razor$
+\end{verbatim}
+}
+\end{mexample}
+
+Bueno, lo del rompedor de claves fue solo para llamar la atención. En
+general, podéis utilizar esta funcionalidad de ssh para ejecutar
+cualquier tipo de cálculo intensivo que se preste a ser dividido en partes
+de una forma sencilla.
+
+\end{multicols}
+
+
+\clearpage
+\pagebreak
+
+\bOpage{introcolor}{0.25}{MALA BESTIA}
+
+\sectiontext{white}{black}{EJECUTANDO APLICACIONES INTERACTIVAS}
+
+La forma de ejecutar comandos remotamente, que hemos visto hasta ahora,
+solamente funciona con programas que no necesitan ni un terminal ni un
+sistema gráfico. Pero no está todo perdido, ssh nos proporciona una
+enorme cantidad de opciones. 
+
+
+
+Veamos como ejecutar un programa que
+necesita un terminal... como por ejemplo vim
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ ssh -t remoto "vim /tmp/kk"
+Password:
+.. Nuestra sesion vim ...
+occam@razor$ ssh remoto "cat /tmp/kk"
+... veremos lo que hayamos escrito
+\end{verbatim}
+}
+\end{mexample}
+
+Interesante no?... pero todavía podemos hacerlo mejor. ssh nos permite
+ejecutar aplicaciones gráficas remotamente. Bueno, esto siempre se ha
+podido hacer con el sistema X-Window, sin embargo, utilizando ssh,
+todo el tráfico de red que genera el protocolo X-Window estará cifrado
+:).
+
+Para hacer esto utilizaremos la opción -X de la misma forma que
+utilizamos la opción -t en nuestro ejemplo anterior. Sin embargo, en
+este caso, tenemos que modificar los ficheros de configuración de ssh
+para permitirle establecer los túneles apropiados. Más adelante
+hablaremos de los túneles, pero ahora centrémonos en las Xs.
+
+El primer requisito para poder hacer esto es que el sistema remoto
+disponga de la aplicación xauth y esta sea accesible. Esta aplicación
+se necesita para configurar el sistema de autenticación MIT-MAGIC-COOKIE-1. Algún
+día hablaremos del engorroso mundo de X-Window. Por ahora, simplemente
+que sepáis que esta es una de las formas que utiliza este sistema de
+ventanas para autenticar los clientes que desean conectarse a un
+servidor X.
+
+\begin{entradilla}
+{\em A través de una conexión SSH podemos {\color{introcolor}{ejecutar aplicaciones interactivas}} tanto en modo texto como en modo gráfico}
+\end{entradilla}
+
+En nuestra máquina local, además tendremos que modificar el fichero
+\verb!${HOME}/.ssh/config! o el \verb!/etc/ssh/ssh_config!. Añadiendo las siguientes
+entradas:
+
+%$
+\begin{mexample}
+{\small
+\begin{verbatim}
+Host lamaquinaX
+ForwardX11 yes
+\end{verbatim}
+}
+\end{mexample}
+
+
+Por otra parte, el servidor ssh remoto debe tener activado el
+``Forwarding'' de las X. Esto es, en el fichero \verb!/etc/ssh/sshd_config!,
+debemos tener una entrada como esta (por defecto está puesta a no por
+cuestiones de seguridad).
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+X11Forwarding yes
+\end{verbatim}
+}
+\end{mexample}
+
+
+Ahora ya podemos ejecutar nuestra aplicación preferida en la máquina
+remota:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ ssh -X lamaquinaX xbill
+Password:
+\end{verbatim}
+}
+%$
+\end{mexample}
+
+No conocéis xbill?... a que esperáis para probarlo? :)
+
+\sectiontext{white}{black}{BACKAPEANDO}
+
+El paquete ssh incluye algunas aplicaciones adicionales que resultan
+de gran interés. Una de ellas es scp, que como os podéis imaginar
+recibe su nombre del acrónimo ``Secure CoPy''. Pues eso. 
+
+Su sintaxis es la siguiente:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+scp [-r] fichero_origen fichero_destino
+
+fichero : usuario@maquina:path
+\end{verbatim}
+}
+\end{mexample}
+
+
+Es decir, tenemos un parámetro opcional, -r, que le indicará a scp que
+debe copiar recursivamente los ficheros que se indican, esto es,
+descender por los directorio si es necesario. Realmente tiene unas
+cuantas opciones más, pero esta es la que utilizareis
+continuamente. Para conocer las otras tenéis la página del manual.
+
+Respecto a los ficheros de origen y destino, la única condición es que
+uno tiene que ser local y el otro tiene que ser remoto. Es decir, no
+es posible hacer una copia de un fichero en una máquina remota a otra
+máquina remota.
+
+Veamos como añadir nuevos mp3s a nuestra máquina 'jukebox':
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ scp -r mis_mp3/* jukebox:/home/mp3
+Password:
+... progreso de la copia
+occam@razor$
+\end{verbatim}
+}
+\end{mexample}
+
+O como copiar un álbum determinado a nuestro reproductor mp3 portátil:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ scp -r jukebox:/home/mp3/Musica_QTC/*\
+> /media/usb0/.
+Password:
+... progreso de la copia
+occam@razor$
+\end{verbatim}
+}
+\end{mexample}
+
+
+Sencillo no?
+
+
+
+\sectiontext{white}{black}{CAMBIANDO DE ORDENADOR. OTRA VEZ}
+
+Sí, las cosas nos van bien y hemos vuelto a cambiar de ordenador. 
+
+
+\ebOpage{introcolor}{0.25}{MALA BESTIA}
+
+Pero
+ahora, además, tenemos una tremenda red wifi que hace que nuestros
+datos viajen por el éter, de forma que algún desaprensivo pueda ``echar
+un ojo'' a esas fotos comprometedoras.
+
+Vaya, netcat no es una buena opción en este caso. Así que vamos a usar
+nuestro nuevo amiguito: ssh.
+
+
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ ssh root@viejo "dd if=/dev/hda1" > \
+> viejo_hda1.iso
+Password:
+... algunas horas después
+occam@razor$
+\end{verbatim}
+}
+\end{mexample}
+
+
+Sí, nuestra conexión wifi no va tan rápido como nuestra ethernet, así
+que mejor comprimimos los datos antes de enviarlos:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ ssh root@viejo "dd if=/dev/hda1 | \
+> gzip" > viejo_hda1.iso.gz
+Password:
+... algunas horas menos después
+occam@razor$
+\end{verbatim}
+}
+\end{mexample}
+
+Por supuesto, si no queremos copiar toda la partición, sino solo
+nuestro directorio home, podemos utilizar tar:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ ssh root@viejo "cd /home/occam; \
+> tar czf -" > viejo_home.tgz
+Password:
+... algunas horas menos después
+occam@razor$
+\end{verbatim}
+}
+\end{mexample}
+
+
+
+Como comentario final, solamente deciros que en lugar de redireccionar
+la salida de estos comandos a un fichero para crear una imagen del
+disco, podéis utilizar dd para escribir directamente los datos en la
+máquina remota y así instalar de forma sencilla varios equipos
+iguales. No olvidéis ajustar el directorio /etc después de terminar la
+copia... al menos el interfaz de red :)
+
+\begin{entradilla}
+{\em Podemos hacer {\color{introcolor}{copias de seguridad a través de red}}... sobre un canal cifrado}
+\end{entradilla}
+
+\sectiontext{white}{black}{A LO GALLARDÓN}
+
+Pues sí. Hemos llegado a una de las aplicaciones más interesantes de
+ssh: los túneles o ``port forwarding''.
+
+ssh permite utilizar el canal de comunicación cifrado entre dos
+máquinas por otras conexiones. Esto lo hace de forma directa para las
+X-Window, como vimos más arriba, pero también nos permite, hacer que
+el tráfico de cualquier otra conexión viaje cifrado por el canal de
+comunicaciones que crea ssh.
+
+Se pueden redirigir los puertos de dos formas: local o remota. El uso
+de una u otra forma es idéntico salvo por el flag a utilizar al
+invocar ssh. Bueno, veamos un ejemplo para clarificar las cosas.
+
+Supongamos que, de alguna forma, hemos conseguido que nuestra empresa
+nos permita teletrabajar desde nuestras casas. Nuestra empresa dispone
+de una máquina llamada ``entrada'' en la que se ejecuta un servidor ssh,
+la cual es el único punto de entrada a la red interna.
+
+\begin{entradilla}
+{\em Establecer {\color{introcolor}{túneles cifrados}} es muy sencillo con SSH}
+\end{entradilla}
+
+Para poder llevar a cabo nuestro trabajo, necesitamos acceder a un
+servicio ``super-secreto'' que se ejecuta en la máquina llamada
+``proyecto-x'', dentro de la red interna de nuestra empresa. Este servicio
+corre en el puerto 5000.
+
+Puesto que nos conectamos a través de internet, y esa conexión no se
+puede considerar segura, lo que vamos a hacer es utilizar una conexión
+segura ssh para acceder a la máquina proyectoX. Lo haremos de esta forma.
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ ssh -L1234:proyecto-x:5000 entrada
+Password:
+occam@entrada$
+\end{verbatim}
+}
+\end{mexample}
+
+El flag -L indica a ssh que conecte el puerto local 1234 al puerto
+5000 de la máquina ``proyecto-x'', a través de la conexión ssh con la
+máquina ``entrada''. Si ahora accedemos directamente al puerto 1234 de
+nuestra máquina, nuestro tráfico se redireccionará al puerto 5000 de
+la máquina ``proyecto-x'', a través del canal cifrado que hemos
+establecido con la máquina ``entrada'', a la que tenemos acceso desde el exterior.
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ nc localhost 1234
+Bienvenido al Proyecto X
+> 
+\end{verbatim}
+}%$
+\end{mexample}
+
+Ahora todos los comandos que enviemos a la máquina proyecto-x irán
+cifrados en el tramo que conecta nuestra máquina local y la máquina
+entrada, es decir, la parte del recorrido que pasa por internet.
+
+
+Podemos utilizar el flag -R para conseguir un resultado similar. La
+sintaxis es idéntica, pero en este caso el puerto de redirección se
+abrirá en la máquina remota. 
+
+Como podéis imaginar, nuestra máquina ``proyecto-x'' puede ser cualquier
+servicio interno de la red remota: servidores web, pop, etc... 
+
+
+
+Por ejemplo, si la máquina ``proyecto-x'' ofrece un interfaz web, una vez
+establecido el túnel, solo tenemos que apuntar nuestro navegador a la
+url: ``http://entrada/1234'' si la redirección de puertos es remota, o a
+``http://localhost:1234'' si optamos por la redirección local. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ebOpage{introcolor}{0.25}{MALA BESTIA}
+
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ ssh -R1234:proyecto-x:5000 entrada
+Password:
+occam@entrada$ 
+....
+
+[En otro terminal]
+
+occam@razor$ nc entrada 1234
+Bienvenido al Proyecto X
+> 
+\end{verbatim} %$
+}
+\end{mexample}
+
+
+\begin{entradilla}
+{\em La configuración de {\color{introcolor}{conexión directa}} facilita la creación de scripts}
+\end{entradilla}
+
+
+
+\sectiontext{white}{black}{MÁS OPCIONES}
+
+La forma de establecer el túnel que acabamos de ver, implica iniciar
+una sesión shell. Una vez que la conexión con ``proyecto-x'' haya sido
+establecida, podemos cerrar la sesión shell, y ssh mantendrá el canal
+de comunicaciones seguro mientras exista alguna conexión a través de
+los puertos redireccionados.
+
+Una forma, quizás más elegante de hacer esto, es utilizar el flag
+-f. Esta opción le indica a ssh que pase a segundo plano tras realizar
+las opciones que nos interesen. Así que una forma más chula de
+establecer nuestro túnel a ``proyecto-x'' sería esta:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ ssh -f -L1234:proyecto-x:5000 \
+> entrada "sleep 20"
+Password:
+occam@razor$ nc localhost 1234
+Bienvenido al Proyecto X
+> 
+\end{verbatim}
+}
+\end{mexample}
+
+Como podéis ver, ahora no dejamos el terminal bloqueado con una sesión
+shell, sino que tras ejecutar ssh se nos devuelve el control
+automáticamente. A partir de ese momento, tenemos 20 segundos (sleep
+20) para iniciar nuestra conexión con ``proyecto-x''.
+
+Así, tras esos 20 segundos, ssh habrá terminado la ejecución de sleep,
+pero, puesto que existe una conexión redireccionada, el canal seguro
+se mantendrá.
+
+Si lo que nos interesa es establecer el túnel de forma permanente, la
+opción -N nos resultará mucho más útil. Esta opción le indica a ssh
+que no ejecute ningún comando, estableciendo la redirección de puertos
+sin más. Sería algo como esto:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ ssh -N -f -L1234:proyecto-x:5000 \
+> entrada
+Password:
+occam@razor$ nc localhost 1234
+Bienvenido al Proyecto X
+> 
+\end{verbatim}
+}
+\end{mexample}
+
+
+\sectiontext{white}{black}{CONEXIÓN DIRECTA}
+
+Hasta el momento, habréis visto que en todos los ejemplos que hemos
+utilizado, es necesario escribir un password para poder hacer lo que
+sea en el sistema remoto.
+
+Esto está muy bien, pero hace que no podamos utilizar ssh en scripts
+automáticos de mantenimiento, como por ejemplo, hacer backups
+periódicos como veíamos más arriba. Bueno, hay opciones, como utilizar
+expect para ello, pero ssh proporciona un sistema de autenticación
+alternativo basado en criptografía asimétrica.
+
+
+
+Para ello podemos utilizar RSA o DSA y el proceso es bastante
+sencillo. Lo primero que tenemos que hacer es generar un par de
+claves, como en cualquier sistema asimétrico. Una pública y una
+privada. Esto lo hacemos con la utilidad ssh-keygen.
+
+
+
+La utilidad ssh-keygen nos hará un par de preguntas. La primera es
+el nombre del fichero en el que se almacenarán las claves que se
+generen. La segunda es una clave para proteger las claves que vayamos
+a generar.
+
+
+
+Si lo que queremos es evitar que se nos pida un password al ejecutar
+ssh, dejaremos esta clave en blanco, es decir, no cifrar nuestro par
+de claves. Como podéis imaginar esto implica un cierto riesgo, ya que
+si algún malhechor consigue acceder a la máquina en la que se
+almacenan esas claves, tendrá acceso directo a sistemas supuestamente
+seguros. Bien, volveremos sobre esto en breve.
+
+\sectiontext{white}{black}{CONFIGURANDO LA CONEXIÓN DIRECTA}
+
+Tras ejecutar ssh-keygen, y si no hemos especificado un fichero para
+almacenar las claves diferente al de por defecto (simplemente pulsar
+enter cuando se nos pregunta), nuestra clave pública se habrá almacenado
+en el fichero ``~/.ssh/identity.pub''.
+
+Lo que tenemos que hacer ahora es añadir el contenido de identity.pub
+al fichero \verb!.ssh/authorized_keys! en la máquina a la que queremos tener
+acceso directo. Algo así:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ scp .ssh/identity.pub remota:/tmp
+occam@razor$ ssh remota
+Password:
+occam@remota$ cat /tmp/identity.pub >> \
+> .ssh/authorized_keys
+occam@remota$ exit
+occam@razor$
+\end{verbatim}%$
+}
+\end{mexample}
+
+\begin{entradilla}
+{\em SSH soporta autenticación con {\color{introcolor}{criptografía simétrica y asimétrica}}}
+\end{entradilla}
+
+Ahora cada vez que nos conectemos a la máquina ``remota'', accederemos
+directamente a ella sin que se nos pida ningún password.
+
+\ebOpage{introcolor}{0.25}{MALA BESTIA}
+
+
+Si hemos introducido una clave para proteger las claves públicas y
+privadas generadas por ssh-keygen, esa será la clave que se nos
+pida. A priori, trabajar de esta forma parece que no tiene muchas
+ventajas respecto a la configuración por defecto, pero no es así...
+
+\sectiontext{white}{black}{MANEJANDO CLAVES PRIVADAS}
+
+Como acabamos de contaros, no todo está perdido si decidimos cifrar
+nuestro par de claves públicas y privadas. De hecho, es bastante
+recomendable hacer eso ;).
+
+
+
+Para solucionar este problema, podemos utilizar ssh-agent. Esta
+aplicación permite manejar de forma automática nuestros pares de
+claves de forma que no tengamos que escribirlos todo el tiempo.
+
+
+
+
+
+
+Para utilizarlo, lo primero que tenemos que hacer es ejecutarlo. Como
+salida de su ejecución, ssh-agent, nos devolverá una serie de comandos
+shell que debemos ejecutar para que el sistema funcione. Después de
+esto, podremos añadir nuestras claves privadas a su caché y ya nos
+podemos olvidar de teclear passwords continuamente. 
+
+Todo este proceso se resume en lo siguiente:
+
+\begin{mexample}
+{\small
+\begin{verbatim}
+occam@razor$ eval `ssh-agent`
+occam@razor$ ssh-add ~/.ssh/identity
+Need passphrase for /home/occam/.ssh/identity
+Enter passphrase for /home/occam/.ssh/identity 
+(introduce tu contraseña)
+\end{verbatim}
+}
+\end{mexample}
+
+El comando ssh-add añade nuestra clave privada a la caché de ssh-agent
+que se está ejecutando en segundo plano. A partir de este momento, ya
+podemos conectarnos directamente a nuestra máquina remota, pero
+manteniendo un nivel de seguridad aceptable, ya que nuestra clave
+privada está cifrada en el disco.
+
+\begin{entradilla}
+{\em ssh-agent hace la {\color{introcolor}{gestión de claves}} más sencilla}
+\end{entradilla}
+
+Por supuesto, mientras ssh-agent se está ejecutando, estamos corriendo
+un cierto riesgo, puesto que la información sensible se encuentra en
+memoria, en la caché de ssh-agent.
+
+
+\sectiontext{white}{blacl}{APLICACIONES CON SOPORTE SSH}
+
+Para terminar, simplemente os vamos a comentar algunas herramientas
+que ya están preparadas para trabajar con ssh y por tanto trabajar de
+forma segura a través de la red.
+
+Quizás unas de las más populares son las herramientas de control de
+configuración como cvs o svn, que cualquiera que desarrolle un
+proyecto en alguno de los repositorios tipo sourceforge disponibles
+por la red, estará acostumbrado a utilizar. Su uso, como cliente, es
+inmediato. Por ejemplo, para el caso de cvs, simplemente tenemos que
+darle el valor ssh a la variable de entorno \verb!CVS_RSH!.
+
+Otra herramienta que trabaja directamente con conexiones ssh es
+rsync. Esta herramienta permite sincronizar directorios entre dos
+sistemas, copiando o borrando solamente lo necesario. Sin duda, una
+herramienta muy útil.
+
+Finalmente, no podemos despedirnos sin hablar de sshfs. Se trata de un
+sistema de ficheros construido sobre FUSE (Filesystem in USer Space),
+que nos permite montar directorios en sistemas remotos, comunicándonos
+con éstos a través de ssh, es decir, de forma segura. Mucho más
+cómodo, seguro y fácil de usar que NFS.
+
+\sectiontext{white}{black}{MONTONES DE OPCIONES}
+
+A lo largo de este texto hemos intentado presentar las opciones más
+comunes y de uso más cotidiano de esta mala bestia. Ahora solo nos
+queda remitiros a las páginas del manual, para que flipéis con el
+resto de opciones de las que no hemos hablado.
+
+Además de la línea de comandos, los ficheros de configuración, tanto
+del cliente como del servidor, que podéis encontrar en /etc/ssh,
+permiten ajustar un montón de opciones muy interesantes desde el punto
+de vista de la seguridad: no permitir login como root, no permitir
+passwords vacías, ...
+
+Esperamos que os haya resultado interesante y que le saquéis partido a
+las redes. Quizás alguno se anime ahora a recuperar algún PC viejo y
+configurar su propia red casera ;)
+
+\sectiontext{white}{black}{USUARIOS DE WINDOWS}
+
+Los usuarios de Windows tienen dos opciones principales para utilizar
+todo esto que hemos comentado hasta el momento. La primera es instalar
+el sistema cygwin con el que conseguirán un entorno UNIX que, por
+supuesto, incluye ``Secure Shell''.
+
+Otra opción es utilizar un pequeño programa llamado ``Putty''. Es muy
+pequeño, no necesita instalación y funciona muy bien. Cada cual que
+escoja su opción :)
+
+
+\bigskip
+
+\colorbox{excolor}{
+\begin{minipage}{.9\linewidth}
+{\bf\sf\Large LECTORES}
+\vspace{1mm}
+\hrule
+\bigskip
+
+
+Recordad que podéis enviarnos vuestros experimentos con ssh, y los
+más interesantes, curiosos y güays los publicaremos en el próximo
+número. 
+
+Todavía somos pobres para hacer concursos hasta que consigamos
+patrocinadores con pasta... Pero bueno, por lo que te ha costado esta
+revista te puedes estirar un poco no?
+
+Podéis enviar vuestras propuestas a:
+
+\bigskip
+
+{\tt occams-razor@uvigo.es}
+
+\bigskip
+
+A domar esta mala bestia
+
+\bigskip
+
+\end{minipage}
+}
+
+
+
+\end{multicols}
+
+\clearpage
+\pagebreak

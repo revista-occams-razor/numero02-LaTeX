@@ -1,0 +1,221 @@
+% Revista Occam's Razor Número 2
+%
+% (c) 2007, Occam's Razor.
+% Contenido disponible bajo licencia Reconocimiento-No comercial-Compartir bajo la misma licencia 2.5 España de Creative Commons. Para ver una copia de esta licencia, visite http://creativecommons.org/licenses/by-nc-sa/2.5/es/ o envie una carta a Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+% 
+
+\documentclass[10pt,a4paper,twoside]{article}
+
+% Paquetes... probablemente alguno no sea necesario
+% 
+
+\usepackage[latin1]{inputenc}                                                   
+\usepackage[spanish]{babel}  
+\usepackage{graphicx}
+\usepackage{a4,fancyhdr, multicol}
+\usepackage{float}
+\usepackage{pdftricks}
+\usepackage{pstricks}
+\usepackage{color}
+\usepackage{pstcol}
+\usepackage{pst-plot}
+\usepackage{pst-eps}
+\usepackage{wrapfig}
+\usepackage{eso-pic}
+\usepackage{listings}
+\usepackage{textpos}
+\usepackage{epsf}
+
+\usepackage[T1]{fontenc} 
+\usepackage{lmodern} 
+
+% Configuración de tamaño de página
+\setlength{\parindent}{0in}
+\setlength{\oddsidemargin}{0.05mm}
+\setlength{\evensidemargin}{0.05mm}
+
+\addtolength{\textwidth}{4cm}
+\addtolength{\topmargin}{-3.5cm}
+\addtolength{\textheight}{4.5cm}
+\pagestyle{fancy}
+
+% Configuración de Cabeceras Fancy Header
+\fancyhead{}
+\fancyfoot{} % clear all footer fields 
+\fancyfoot[LE]{\textbf{\textsf{OCCAM's Razor | \thepage}}}
+\fancyfoot[RO]{\textbf{\textsf{\thepage | OCCAM's Razor}}}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Elimina líneas de cabecera
+%
+\renewcommand{\headrulewidth}{0pt} 
+
+
+% Colores
+\definecolor{introcolor}{rgb}{0.8,1.0,0.8}
+\definecolor{titlecolor}{rgb}{0.4,0.5,0.1}
+\definecolor{excolor}{rgb}{0.8,0.8,0.8}
+
+% ********************************************************
+% Definición de Comandos y Entornos
+% ********************************************************
+
+% Comandos de uso general
+% ---------------------------------------------------------
+% Secciones títulos y subtítulos de cada página
+\newcommand{\msection}[4]{
+{\begin{flushright}{
+{\psset{linecolor=black,linestyle=dotted}\psline(-17,0)}
+\colorbox{#1}{
+\begin{minipage}{#3\linewidth}
+\center
+  \textcolor{#2}{
+    \textsf{\textbf{#4}}}
+\end{minipage}
+}}\end{flushright}}
+
+\vspace{4mm}
+}
+
+\newcommand{\mtitle}[2]{
+  {\resizebox{#1}{0.7cm}{\textbf{\textsf{#2}}}}
+  \vspace{1mm}
+}
+
+\newcommand{\msubtitle}[2]{
+  {\resizebox{#1}{0.5cm}{{\gray{\textbf{\textsf{#2}}}}}}
+  \vspace{1mm}
+}
+
+% Principio de Página. Pone el cuadro superior con la sección
+\newcommand{\bOpage}[3]{
+  \msection{#1}{black}{#2}{#3}
+  \begin{multicols}{2}
+}
+
+% Fin de página. Termina el entorno multicols
+\newcommand{\eOpage}{
+\pagebreak
+\end{multicols}
+}
+
+% Fin e Inicio de Página. Sino utilizamos figuras fuera de las
+% columnas del cuerpo principal, esta es la forma adecuada de marcar
+% cada página
+\newcommand{\ebOpage}[3]{
+\eOpage
+\bOpage{#1}{#2}{#3}
+}
+
+% Crea el cuadro de introducción al principio de cada artículo
+\newcommand{\intro}[3]{
+\colorbox{#1}{
+  \begin{minipage}{.9\linewidth}
+    \vspace{2mm}
+    {{\resizebox{!}{1.0cm}{#2}}{#3}}
+  \vspace{1mm}
+  \end{minipage}
+}
+\vspace{4mm}
+}
+
+
+% Comando para introducir figura en entorno multicol
+\newcommand{\myfig}[3]{
+\begin{center}
+  \includegraphics[width=#3\hsize,angle=#1]{#2}
+  \nobreak
+\end{center}}
+
+% Caption para figuras en entorno multicol
+\setcounter{figure}{1}
+\newcommand{\mycaption}[1]{
+  \begin{quote}
+    {\small
+    {{\sc Figura} \arabic{figure}: #1}
+    }
+  \end{quote}
+  \stepcounter{figure}
+}
+
+% Caption para figuras en entorno multicol sin contador
+\newcommand{\nncaption}[1]{
+  %\begin{quote}
+    {\footnotesize{\textbf{
+    {#1}
+    }}}
+  %\end{quote}
+}
+
+% Comando para introducir secciones en los artículos
+\newcommand{\sectiontext}[3]{\vspace{4mm}{{\textcolor{titlecolor}{\large{\textbf{\textsf{#3}}}}}}
+\vspace{2mm}
+}
+
+
+% Entornos (begin... end)
+% ----------------------------------------------------
+% Entorno para introducir ejemplos
+\newenvironment{mexample}{
+  \vspace{2mm}
+  \bgroup
+  \tiny
+}{
+  \egroup
+  \vspace{4mm}
+}
+
+% Entorno para introducir entradillas en el texto
+\newenvironment{entradilla}{
+  \bigskip
+  \hrule 
+  \bigskip
+  \bgroup
+  \LARGE
+}{
+  \egroup
+  \bigskip
+  \hrule
+  \vspace{5mm}
+}
+
+
+% **************************************************************************
+% Comienza el documento
+\begin{document}
+
+% Portada, no utiliza Fancy Header e introduce imagen de portada con PStricks
+\pagestyle{empty}
+
+\rput(8,-14){\epsfbox{images/portada-n2.eps}}
+
+\clearpage
+\pagebreak
+
+% Imagen con el sumario en la siguiente página
+\rput(8,-14.0){\resizebox{!}{30cm}{{\epsfbox{images/sumario-n2.eps}}}}
+
+
+\pagebreak
+
+% Activa Fancy Headers stilo e incluye los distintos artículos
+\pagestyle{fancy}
+
+\definecolor{introcolor}{rgb}{0.6,0.7,0.3}
+
+\include{editorial}
+
+\include{lectores}
+\include{ratas}
+\include{mala_bestia}
+\include{reverso}
+\include{murapido}
+\include{en_la_practica}
+\include{tecnologia}
+\include{distros}
+\include{makingof}
+\include{eventos}
+\include{trucos}
+\include{contraportada}
+
+\end{document}

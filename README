@@ -1,0 +1,15 @@
+Occam's Razor Número 2. Primera Edición, 2007
+Lee el fichero LICENCIA
+
+Instrucciones Rápida.
+----------------------
+* Para generar la revista ejecuta:
+  make
+
+* Para eliminar los ficheros temporales que genera LaTeX
+  make clean
+
+* Para borrarlo todo (incluyendo el ps.gz y el pdf)
+  make clean-all
+  
+
